@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>OSC Request Management Dashboard</title>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CSS file from Apps Script -->
+  <?!= include('style'); ?>
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <!-- HEADER -->
+    <header class="dashboard-header">
+      <div>
+        <p class="eyebrow">OSC MANAGEMENT PORTAL</p>
+        <h1>Request Management Dashboard</h1>
+        <p class="header-description">
+          Track open projects, monitor request status, assign tasks, and manage completed deliverables.
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <button class="secondary-btn" onclick="refreshDashboard()">
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- SUMMARY CARDS -->
+    <section class="summary-grid">
+      <div class="summary-card">
+        <span class="summary-label">Total Requests</span>
+        <strong id="totalCount">0</strong>
+        <p>All submitted requests</p>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">Open Projects</span>
+        <strong id="openCount">0</strong>
+        <p>Currently active tickets</p>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">Completed</span>
+        <strong id="completedCount">0</strong>
+        <p>Closed and completed work</p>
+      </div>
+
+      <div class="summary-card">
+        <span class="summary-label">Unassigned</span>
+        <strong id="unassignedCount">0</strong>
+        <p>Requests with no assigned staff</p>
+      </div>
+    </section>
+
+    <!-- MAIN CARD -->
+    <main class="dashboard-card">
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div>
+          <h2 id="activeViewTitle">Open Projects</h2>
+          <p id="activeViewSubtitle">
+            Requests that are still active and not yet marked as completed.
+          </p>
+        </div>
+
+        <div class="toolbar-controls">
+          <input 
+            type="search" 
+            id="searchInput" 
+            placeholder="Search request, office, assigned, status..."
+            oninput="renderCurrentView()"
+          >
+
+          <select id="statusFilter" onchange="renderCurrentView()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In Progress">In Progress</option>
+            <option value="For Review">For Review</option>
+            <option value="Revision">Revision</option>
+            <option value="Completed">Completed</option>
+            <option value="On Hold">On Hold</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-view="open" onclick="switchView('open')">
+          Open Projects
+        </button>
+
+        <button class="tab-btn" data-view="all" onclick="switchView('all')">
+          All Requests
+        </button>
+
+        <button class="tab-btn" data-view="completed" onclick="switchView('completed')">
+          Completed
+        </button>
+
+        <button class="tab-btn" data-view="unassigned" onclick="switchView('unassigned')">
+          Unassigned
+        </button>
+      </nav>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tracking No.</th>
+              <th>Request</th>
+              <th>Office</th>
+              <th>Date Needed</th>
+              <th>Status</th>
+              <th>Assigned</th>
+              <th>Ticket</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody id="requestTableBody">
+            <tr>
+              <td colspan="8" class="empty-cell">Loading requests...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- DETAILS / EDIT MODAL -->
+  <div id="requestModal" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">REQUEST DETAILS</p>
+          <h2 id="modalTitle">Request Title</h2>
+          <p id="modalSubtitle">Requester and office details</p>
+        </div>
+
+        <button class="icon-btn" onclick="closeModal()">×</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- MANAGEMENT ACTIONS -->
+        <section class="modal-section action-section">
+          <div>
+            <h3>Management Actions</h3>
+            <p>Update internal request status, assignment, and completion details.</p>
+          </div>
+
+          <button class="complete-btn" onclick="handleMarkCompleted()">
+            Mark as Completed
+          </button>
+        </section>
+
+        <!-- EDITABLE MANAGEMENT FIELDS -->
+        <section class="modal-section">
+          <h3>Editable Management Fields</h3>
+
+          <div class="edit-grid">
+            <div class="field">
+              <label for="editTrackingNumber">Tracking Number</label>
+              <input type="text" id="editTrackingNumber">
+            </div>
+
+            <div class="field">
+              <label for="editTicket">Ticket</label>
+              <select id="editTicket">
+                <option value="">Select Ticket Status</option>
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="editStatus">Status</label>
+              <select id="editStatus">
+                <option value="">Select Status</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="For Review">For Review</option>
+                <option value="Revision">Revision</option>
+                <option value="Completed">Completed</option>
+                <option value="On Hold">On Hold</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="editAssigned">Assigned</label>
+              <input type="text" id="editAssigned" placeholder="Name of assigned staff">
+            </div>
+
+            <div class="field">
+              <label for="editDateNeeded">Date Needed</label>
+              <input type="date" id="editDateNeeded">
+            </div>
+
+            <div class="field">
+              <label for="editConfirmationEmail">Confirmation Email</label>
+              <select id="editConfirmationEmail">
+                <option value="">Select Email Status</option>
+                <option value="Not Sent">Not Sent</option>
+                <option value="Sent">Sent</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="editDeliverablesEmail">Deliverable(s) Email</label>
+              <select id="editDeliverablesEmail">
+                <option value="">Select Email Status</option>
+                <option value="Not Sent">Not Sent</option>
+                <option value="Sent">Sent</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="editCloseEmail">Close Email</label>
+              <select id="editCloseEmail">
+                <option value="">Select Email Status</option>
+                <option value="Not Sent">Not Sent</option>
+                <option value="Sent">Sent</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="editProjectLink">Project Link</label>
+              <input type="url" id="editProjectLink" placeholder="Paste Google Drive, Canva, or project link">
+            </div>
+
+            <div class="field full">
+              <label for="editRemarks">Remarks</label>
+              <textarea id="editRemarks" rows="3"></textarea>
+            </div>
+
+            <div class="field full">
+              <label for="editNotes">Internal Notes</label>
+              <textarea id="editNotes" rows="3"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <!-- REQUEST DETAILS -->
+        <section class="modal-section">
+          <h3>Submitted Request Details</h3>
+
+          <div class="details-grid" id="requestDetailsGrid">
+            <!-- Filled by script.js -->
+          </div>
+        </section>
+
+      </div>
+
+      <div class="modal-footer">
+        <p id="modalMessage"></p>
+
+        <div class="modal-actions">
+          <button class="secondary-btn" onclick="closeModal()">Cancel</button>
+          <button class="primary-btn" onclick="handleSaveChanges()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-card">
+      <div class="loader"></div>
+      <p>Updating dashboard...</p>
+    </div>
+  </div>
+
+  <!-- JS file from Apps Script -->
+  <?!= include('script'); ?>
+</body>
+</html>
