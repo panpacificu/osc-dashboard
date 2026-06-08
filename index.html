@@ -49,7 +49,7 @@
       <div class="summary-card">
         <span class="summary-label">Open Projects</span>
         <strong id="openCount">0</strong>
-        <p>Requests that are not yet completed</p>
+        <p>Requests with Ticket marked as Open</p>
       </div>
 
       <div class="summary-card">
@@ -61,7 +61,7 @@
       <div class="summary-card">
         <span class="summary-label">Unassigned</span>
         <strong id="unassignedCount">0</strong>
-        <p>Requests without assigned staff</p>
+        <p>Requests without assigned staff or unopened tickets</p>
       </div>
     </section>
 
@@ -73,7 +73,7 @@
         <div>
           <h2 id="activeViewTitle">Open Projects</h2>
           <p id="activeViewSubtitle">
-            Requests that are still active and not yet marked as completed.
+            Requests that are already assigned and marked as Open.
           </p>
         </div>
 
@@ -211,7 +211,7 @@
           <div>
             <h3>Management Actions</h3>
             <p>
-              Update internal request status, assignment, email tracking, project links, and completion details.
+              Assign a staff member first before opening a ticket. Opening and closing tickets can trigger the appropriate email automation.
             </p>
           </div>
 
@@ -234,7 +234,7 @@
             <div class="field">
               <label for="editTicket">Ticket</label>
               <select id="editTicket">
-                <option value="">Select Ticket Status</option>
+                <option value="">Not Yet Opened</option>
                 <option value="Open">Open</option>
                 <option value="Closed">Closed</option>
               </select>
@@ -256,7 +256,13 @@
 
             <div class="field">
               <label for="editAssigned">Assigned</label>
-              <input type="text" id="editAssigned" placeholder="Name of assigned staff">
+              <select id="editAssigned">
+                <option value="">Select assigned staff</option>
+                <option value="Jann Nathaniel Jaravata">Jann Nathaniel Jaravata</option>
+                <option value="Jhovhert Bogtong">Jhovhert Bogtong</option>
+                <option value="Julius Benedict Ignacio">Julius Benedict Ignacio</option>
+                <option value="Charlyn Libao">Charlyn Libao</option>
+              </select>
             </div>
 
             <div class="field">
