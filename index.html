@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>OSC Request Management Dashboard</title>
 
   <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link 
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" 
+    rel="stylesheet"
+  >
 
-  <!-- CSS file from Apps Script -->
-  <?!= include('style'); ?>
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
@@ -21,16 +23,16 @@
 
     <!-- HEADER -->
     <header class="dashboard-header">
-      <div>
+      <div class="header-copy">
         <p class="eyebrow">OSC MANAGEMENT PORTAL</p>
         <h1>Request Management Dashboard</h1>
         <p class="header-description">
-          Track open projects, monitor request status, assign tasks, and manage completed deliverables.
+          Track open projects, monitor request status, assign tasks, review full request details, and close completed deliverables.
         </p>
       </div>
 
       <div class="header-actions">
-        <button class="secondary-btn" onclick="refreshDashboard()">
+        <button class="secondary-btn" id="refreshBtn" type="button">
           Refresh
         </button>
       </div>
@@ -41,29 +43,29 @@
       <div class="summary-card">
         <span class="summary-label">Total Requests</span>
         <strong id="totalCount">0</strong>
-        <p>All submitted requests</p>
+        <p>All submitted OSC requests</p>
       </div>
 
       <div class="summary-card">
         <span class="summary-label">Open Projects</span>
         <strong id="openCount">0</strong>
-        <p>Currently active tickets</p>
+        <p>Requests that are not yet completed</p>
       </div>
 
       <div class="summary-card">
         <span class="summary-label">Completed</span>
         <strong id="completedCount">0</strong>
-        <p>Closed and completed work</p>
+        <p>Closed and completed requests</p>
       </div>
 
       <div class="summary-card">
         <span class="summary-label">Unassigned</span>
         <strong id="unassignedCount">0</strong>
-        <p>Requests with no assigned staff</p>
+        <p>Requests without assigned staff</p>
       </div>
     </section>
 
-    <!-- MAIN CARD -->
+    <!-- MAIN DASHBOARD CARD -->
     <main class="dashboard-card">
 
       <!-- TOOLBAR -->
@@ -79,11 +81,10 @@
           <input 
             type="search" 
             id="searchInput" 
-            placeholder="Search request, office, assigned, status..."
-            oninput="renderCurrentView()"
+            placeholder="Search request, office, requester, assigned, status..."
           >
 
-          <select id="statusFilter" onchange="renderCurrentView()">
+          <select id="statusFilter">
             <option value="">All Status</option>
             <option value="Pending">Pending</option>
             <option value="In Progress">In Progress</option>
@@ -97,20 +98,20 @@
       </div>
 
       <!-- TABS -->
-      <nav class="tabs">
-        <button class="tab-btn active" data-view="open" onclick="switchView('open')">
+      <nav class="tabs" aria-label="Dashboard views">
+        <button class="tab-btn active" type="button" data-view="open">
           Open Projects
         </button>
 
-        <button class="tab-btn" data-view="all" onclick="switchView('all')">
+        <button class="tab-btn" type="button" data-view="all">
           All Requests
         </button>
 
-        <button class="tab-btn" data-view="completed" onclick="switchView('completed')">
+        <button class="tab-btn" type="button" data-view="completed">
           Completed
         </button>
 
-        <button class="tab-btn" data-view="unassigned" onclick="switchView('unassigned')">
+        <button class="tab-btn" type="button" data-view="unassigned">
           Unassigned
         </button>
       </nav>
@@ -133,7 +134,9 @@
 
           <tbody id="requestTableBody">
             <tr>
-              <td colspan="8" class="empty-cell">Loading requests...</td>
+              <td colspan="8" class="empty-cell">
+                Loading requests...
+              </td>
             </tr>
           </tbody>
         </table>
@@ -143,10 +146,10 @@
   </div>
 
   <!-- DETAILS / EDIT MODAL -->
-  <div id="requestModal" class="modal hidden">
-    <div class="modal-backdrop" onclick="closeModal()"></div>
+  <div id="requestModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
 
-    <div class="modal-card">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modal-header">
         <div>
           <p class="eyebrow">REQUEST DETAILS</p>
@@ -154,7 +157,9 @@
           <p id="modalSubtitle">Requester and office details</p>
         </div>
 
-        <button class="icon-btn" onclick="closeModal()">×</button>
+        <button class="icon-btn" id="closeModalBtn" type="button" aria-label="Close modal">
+          ×
+        </button>
       </div>
 
       <div class="modal-body">
@@ -163,10 +168,12 @@
         <section class="modal-section action-section">
           <div>
             <h3>Management Actions</h3>
-            <p>Update internal request status, assignment, and completion details.</p>
+            <p>
+              Update internal request status, assignment, email tracking, project links, and completion details.
+            </p>
           </div>
 
-          <button class="complete-btn" onclick="handleMarkCompleted()">
+          <button class="complete-btn" id="markCompletedBtn" type="button">
             Mark as Completed
           </button>
         </section>
@@ -176,9 +183,10 @@
           <h3>Editable Management Fields</h3>
 
           <div class="edit-grid">
+
             <div class="field">
               <label for="editTrackingNumber">Tracking Number</label>
-              <input type="text" id="editTrackingNumber">
+              <input type="text" id="editTrackingNumber" placeholder="Tracking number">
             </div>
 
             <div class="field">
@@ -215,6 +223,11 @@
             </div>
 
             <div class="field">
+              <label for="editCompletionDate">Completion Date</label>
+              <input type="date" id="editCompletionDate">
+            </div>
+
+            <div class="field">
               <label for="editConfirmationEmail">Confirmation Email</label>
               <select id="editConfirmationEmail">
                 <option value="">Select Email Status</option>
@@ -243,22 +256,27 @@
 
             <div class="field full">
               <label for="editProjectLink">Project Link</label>
-              <input type="url" id="editProjectLink" placeholder="Paste Google Drive, Canva, or project link">
+              <input 
+                type="url" 
+                id="editProjectLink" 
+                placeholder="Paste Google Drive, Canva, or project link"
+              >
             </div>
 
             <div class="field full">
               <label for="editRemarks">Remarks</label>
-              <textarea id="editRemarks" rows="3"></textarea>
+              <textarea id="editRemarks" rows="3" placeholder="Request remarks"></textarea>
             </div>
 
             <div class="field full">
               <label for="editNotes">Internal Notes</label>
-              <textarea id="editNotes" rows="3"></textarea>
+              <textarea id="editNotes" rows="3" placeholder="Internal notes for OSC team"></textarea>
             </div>
+
           </div>
         </section>
 
-        <!-- REQUEST DETAILS -->
+        <!-- SUBMITTED REQUEST DETAILS -->
         <section class="modal-section">
           <h3>Submitted Request Details</h3>
 
@@ -273,8 +291,13 @@
         <p id="modalMessage"></p>
 
         <div class="modal-actions">
-          <button class="secondary-btn" onclick="closeModal()">Cancel</button>
-          <button class="primary-btn" onclick="handleSaveChanges()">Save Changes</button>
+          <button class="secondary-btn" id="cancelModalBtn" type="button">
+            Cancel
+          </button>
+
+          <button class="primary-btn" id="saveChangesBtn" type="button">
+            Save Changes
+          </button>
         </div>
       </div>
     </div>
@@ -284,11 +307,16 @@
   <div id="loadingOverlay" class="loading-overlay hidden">
     <div class="loading-card">
       <div class="loader"></div>
-      <p>Updating dashboard...</p>
+      <p id="loadingText">Updating dashboard...</p>
     </div>
   </div>
 
-  <!-- JS file from Apps Script -->
-  <?!= include('script'); ?>
+  <!-- TOAST MESSAGE -->
+  <div id="toast" class="toast hidden">
+    <p id="toastMessage">Dashboard updated.</p>
+  </div>
+
+  <!-- JS -->
+  <script src="script.js"></script>
 </body>
 </html>
