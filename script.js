@@ -6,9 +6,6 @@
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec';
 
-/**
- * App state
- */
 let allRequests = [];
 let currentView = 'open';
 let selectedRequest = null;
@@ -18,10 +15,6 @@ let currentSort = {
   direction: 'asc'
 };
 
-/**
- * Fields shown in the submitted details section.
- * These are mostly read-only form submission details.
- */
 const DETAIL_FIELDS = [
   'Timestamp',
   'Email Address',
@@ -60,9 +53,6 @@ const DETAIL_FIELDS = [
   'Completion Date'
 ];
 
-/**
- * Editable fields sent back to Google Sheets.
- */
 const EDITABLE_FIELDS = {
   'Tracking Number': 'editTrackingNumber',
   'Ticket': 'editTicket',
@@ -78,20 +68,13 @@ const EDITABLE_FIELDS = {
   'Notes': 'editNotes'
 };
 
-/**
- * Init
- */
 document.addEventListener('DOMContentLoaded', () => {
   bindEvents();
   refreshDashboard();
 });
 
-/**
- * Event bindings
- */
 function bindEvents() {
   document.getElementById('refreshBtn').addEventListener('click', refreshDashboard);
-
   document.getElementById('searchInput').addEventListener('input', renderCurrentView);
   document.getElementById('statusFilter').addEventListener('change', renderCurrentView);
 
@@ -114,15 +97,10 @@ function bindEvents() {
   document.getElementById('markCompletedBtn').addEventListener('click', handleMarkCompleted);
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeModal();
-    }
+    if (event.key === 'Escape') closeModal();
   });
 }
 
-/**
- * Refresh dashboard data.
- */
 function refreshDashboard() {
   if (!isApiConfigured()) return;
 
@@ -134,7 +112,11 @@ function refreshDashboard() {
         throw new Error(response.message || 'Unable to load requests.');
       }
 
-      allRequests = response.requests || [];
+      allRequests = (response.requests || []).map((item) => {
+        item.requestDisplayTitle = getRequestTitle(item);
+        return item;
+      });
+
       updateSummaryCards();
       renderNewRequestsPanel();
       renderCurrentView();
@@ -150,9 +132,6 @@ function refreshDashboard() {
     });
 }
 
-/**
- * Switch active dashboard tab.
- */
 function switchView(view) {
   currentView = view;
 
@@ -164,9 +143,6 @@ function switchView(view) {
   renderCurrentView();
 }
 
-/**
- * Update title and subtitle depending on selected tab.
- */
 function updateViewHeader() {
   const title = document.getElementById('activeViewTitle');
   const subtitle = document.getElementById('activeViewSubtitle');
@@ -194,9 +170,6 @@ function updateViewHeader() {
   subtitle.textContent = viewMap[currentView].subtitle;
 }
 
-/**
- * Render current main table view.
- */
 function renderCurrentView() {
   let requests = getRequestsForCurrentView();
   requests = applySearchFilter(requests);
@@ -210,17 +183,11 @@ function renderCurrentView() {
     return;
   }
 
-  const tbody = document.getElementById('requestTableBody');
-
-  tbody.innerHTML = requests.map((request) => {
-    return createRequestRow(request, 'View / Edit');
-  }).join('');
+  document.getElementById('requestTableBody').innerHTML = requests
+    .map((request) => createRequestRow(request, 'View / Edit'))
+    .join('');
 }
 
-/**
- * Render New / Unassigned Requests panel above the main table.
- * This panel hides automatically when empty.
- */
 function renderNewRequestsPanel() {
   const panel = document.getElementById('newRequestsPanel');
   const countEl = document.getElementById('newRequestsCount');
@@ -251,17 +218,14 @@ function renderNewRequestsPanel() {
   panel.classList.remove('hidden');
   countEl.textContent = newRequests.length;
 
-  tbody.innerHTML = newRequests.map((request) => {
-    return createRequestRow(request, 'Assign / Open');
-  }).join('');
+  tbody.innerHTML = newRequests
+    .map((request) => createRequestRow(request, 'Assign / Open'))
+    .join('');
 }
 
-/**
- * Reusable table row.
- */
 function createRequestRow(request, buttonLabel = 'View / Edit') {
   const trackingNumber = valueOrDash(request['Tracking Number']);
-  const title = valueOrDash(request['Activity Proposal Title'] || request['Request']);
+  const title = valueOrDash(getRequestTitle(request));
   const requester = valueOrDash(request.fullName);
   const office = valueOrDash(request['Office']);
   const dateNeeded = valueOrDash(request['Date Needed']);
@@ -292,9 +256,7 @@ function createRequestRow(request, buttonLabel = 'View / Edit') {
         ${isOverdue ? '<div class="request-meta">Overdue</div>' : ''}
       </td>
 
-      <td>
-        ${createStatusBadge(status)}
-      </td>
+      <td>${createStatusBadge(status)}</td>
 
       <td>
         <span class="${assignedClass}">
@@ -302,9 +264,7 @@ function createRequestRow(request, buttonLabel = 'View / Edit') {
         </span>
       </td>
 
-      <td>
-        ${createTicketBadge(ticket)}
-      </td>
+      <td>${createTicketBadge(ticket)}</td>
 
       <td>
         <button class="table-btn" type="button" onclick="openRequestModal(${request.rowNumber})">
@@ -315,9 +275,15 @@ function createRequestRow(request, buttonLabel = 'View / Edit') {
   `;
 }
 
-/**
- * Get requests based on selected tab.
- */
+function getRequestTitle(request) {
+  return (
+    request['Purpose'] ||
+    request['Activity Proposal Title'] ||
+    request['Request'] ||
+    'Untitled Request'
+  );
+}
+
 function getRequestsForCurrentView() {
   switch (currentView) {
     case 'open':
@@ -335,9 +301,6 @@ function getRequestsForCurrentView() {
   }
 }
 
-/**
- * Search filter.
- */
 function applySearchFilter(requests) {
   const query = document.getElementById('searchInput').value.trim().toLowerCase();
 
@@ -347,12 +310,12 @@ function applySearchFilter(requests) {
     const searchableText = [
       request['Tracking Number'],
       request['Ticket'],
+      request['Purpose'],
       request['Activity Proposal Title'],
       request['Request'],
       request['Description'],
       request['Office'],
       request['Request Type'],
-      request['Purpose'],
       request['Date Needed'],
       request['Status'],
       request['Assigned'],
@@ -366,22 +329,14 @@ function applySearchFilter(requests) {
   });
 }
 
-/**
- * Status dropdown filter.
- */
 function applyStatusFilter(requests) {
   const status = document.getElementById('statusFilter').value.trim().toLowerCase();
 
   if (!status) return requests;
 
-  return requests.filter((request) => {
-    return normalize(request['Status']) === status;
-  });
+  return requests.filter((request) => normalize(request['Status']) === status);
 }
 
-/**
- * Sort handler.
- */
 function handleSort(field) {
   if (currentSort.field === field) {
     currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
@@ -393,9 +348,6 @@ function handleSort(field) {
   renderCurrentView();
 }
 
-/**
- * Apply sorting.
- */
 function applySort(requests) {
   const sorted = [...requests];
   const field = currentSort.field;
@@ -413,10 +365,11 @@ function applySort(requests) {
   return sorted;
 }
 
-/**
- * Convert values for better sorting.
- */
 function getSortValue(item, field) {
+  if (field === 'requestDisplayTitle') {
+    return getRequestTitle(item).trim().toLowerCase();
+  }
+
   const value = item[field] || '';
 
   if (field.toLowerCase().includes('date')) {
@@ -432,9 +385,6 @@ function getSortValue(item, field) {
   return String(value).trim().toLowerCase();
 }
 
-/**
- * Update sort arrows in table headers.
- */
 function updateSortIndicators() {
   document.querySelectorAll('.sort-btn').forEach((button) => {
     const field = button.dataset.sort;
@@ -452,24 +402,13 @@ function updateSortIndicators() {
   });
 }
 
-/**
- * Summary cards.
- */
 function updateSummaryCards() {
-  const total = allRequests.length;
-  const open = allRequests.filter((item) => item.isOpen).length;
-  const completed = allRequests.filter((item) => item.isCompleted).length;
-  const unassigned = allRequests.filter((item) => item.isUnassigned).length;
-
-  document.getElementById('totalCount').textContent = total;
-  document.getElementById('openCount').textContent = open;
-  document.getElementById('completedCount').textContent = completed;
-  document.getElementById('unassignedCount').textContent = unassigned;
+  document.getElementById('totalCount').textContent = allRequests.length;
+  document.getElementById('openCount').textContent = allRequests.filter((item) => item.isOpen).length;
+  document.getElementById('completedCount').textContent = allRequests.filter((item) => item.isCompleted).length;
+  document.getElementById('unassignedCount').textContent = allRequests.filter((item) => item.isUnassigned).length;
 }
 
-/**
- * Empty state.
- */
 function renderEmptyState(message) {
   document.getElementById('requestTableBody').innerHTML = `
     <tr>
@@ -478,9 +417,6 @@ function renderEmptyState(message) {
   `;
 }
 
-/**
- * Open request modal.
- */
 function openRequestModal(rowNumber) {
   selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(rowNumber));
 
@@ -489,11 +425,7 @@ function openRequestModal(rowNumber) {
     return;
   }
 
-  document.getElementById('modalTitle').textContent =
-    selectedRequest['Activity Proposal Title'] ||
-    selectedRequest['Request'] ||
-    'Untitled Request';
-
+  document.getElementById('modalTitle').textContent = getRequestTitle(selectedRequest);
   document.getElementById('modalSubtitle').textContent =
     `${valueOrDash(selectedRequest.fullName)} • ${valueOrDash(selectedRequest['Office'])}`;
 
@@ -506,9 +438,6 @@ function openRequestModal(rowNumber) {
   modal.setAttribute('aria-hidden', 'false');
 }
 
-/**
- * Close modal.
- */
 function closeModal() {
   const modal = document.getElementById('requestModal');
   modal.classList.add('hidden');
@@ -517,9 +446,6 @@ function closeModal() {
   selectedRequest = null;
 }
 
-/**
- * Put selected request values into editable form.
- */
 function populateEditFields(request) {
   Object.entries(EDITABLE_FIELDS).forEach(([fieldName, elementId]) => {
     const element = document.getElementById(elementId);
@@ -529,15 +455,13 @@ function populateEditFields(request) {
   });
 }
 
-/**
- * Show full submitted details in modal.
- */
 function populateDetailsGrid(request) {
   const grid = document.getElementById('requestDetailsGrid');
 
   grid.innerHTML = DETAIL_FIELDS.map((fieldName) => {
     const rawValue = request[fieldName] || '';
     const value = rawValue || '—';
+
     const isLong = String(value).length > 80 || [
       'Description',
       'Caption',
@@ -556,9 +480,6 @@ function populateDetailsGrid(request) {
   }).join('');
 }
 
-/**
- * Save changes from modal.
- */
 function handleSaveChanges() {
   if (!selectedRequest) {
     showToast('No selected request.', 'error');
@@ -591,7 +512,11 @@ function handleSaveChanges() {
 
       const currentRowNumber = selectedRequest.rowNumber;
 
-      allRequests = response.requests || [];
+      allRequests = (response.requests || []).map((item) => {
+        item.requestDisplayTitle = getRequestTitle(item);
+        return item;
+      });
+
       updateSummaryCards();
       renderNewRequestsPanel();
 
@@ -614,9 +539,6 @@ function handleSaveChanges() {
     });
 }
 
-/**
- * Collect editable field values from modal.
- */
 function collectEditFieldValues() {
   const updates = {};
 
@@ -630,9 +552,6 @@ function collectEditFieldValues() {
   return updates;
 }
 
-/**
- * Mark selected request as completed.
- */
 function handleMarkCompleted() {
   if (!selectedRequest) {
     showToast('No selected request.', 'error');
@@ -668,7 +587,11 @@ function handleMarkCompleted() {
 
       const currentRowNumber = selectedRequest.rowNumber;
 
-      allRequests = response.requests || [];
+      allRequests = (response.requests || []).map((item) => {
+        item.requestDisplayTitle = getRequestTitle(item);
+        return item;
+      });
+
       updateSummaryCards();
       renderNewRequestsPanel();
 
@@ -691,10 +614,6 @@ function handleMarkCompleted() {
     });
 }
 
-/**
- * Call Apps Script API using JSONP.
- * This avoids common CORS issues when frontend is hosted on GitHub Pages.
- */
 function callApi(action, params = {}) {
   return new Promise((resolve, reject) => {
     const callbackName = `oscCallback_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
@@ -739,9 +658,6 @@ function callApi(action, params = {}) {
   });
 }
 
-/**
- * Check if API URL was already configured.
- */
 function isApiConfigured() {
   if (!API_URL || API_URL.includes('PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE')) {
     renderEmptyState('Please paste your Apps Script Web App URL inside script.js first.');
@@ -752,9 +668,6 @@ function isApiConfigured() {
   return true;
 }
 
-/**
- * Create status badge.
- */
 function createStatusBadge(status) {
   const cleanStatus = valueOrDefault(status, 'Pending');
   const className = statusToClass(cleanStatus);
@@ -762,9 +675,6 @@ function createStatusBadge(status) {
   return `<span class="badge ${className}">${escapeHtml(cleanStatus)}</span>`;
 }
 
-/**
- * Create ticket badge.
- */
 function createTicketBadge(ticket) {
   const cleanTicket = valueOrDefault(ticket, 'Not Yet Opened');
   const normalized = normalize(cleanTicket);
@@ -777,15 +687,13 @@ function createTicketBadge(ticket) {
   return `<span class="badge ${className}">${escapeHtml(cleanTicket)}</span>`;
 }
 
-/**
- * Convert status text to CSS class.
- */
 function statusToClass(status) {
   const normalized = normalize(status);
 
   const map = {
     'pending': 'pending',
-    'in progress': 'in-progress',
+    'ongoing': 'ongoing',
+    'in progress': 'ongoing',
     'for review': 'for-review',
     'revision': 'revision',
     'completed': 'completed',
@@ -796,9 +704,6 @@ function statusToClass(status) {
   return map[normalized] || 'blank';
 }
 
-/**
- * Format value in details grid.
- */
 function formatDetailValue(value) {
   const text = String(value || '—');
 
@@ -809,9 +714,6 @@ function formatDetailValue(value) {
   return escapeHtml(text);
 }
 
-/**
- * Loading overlay.
- */
 function showLoading(message = 'Loading...') {
   document.getElementById('loadingText').textContent = message;
   document.getElementById('loadingOverlay').classList.remove('hidden');
@@ -821,9 +723,6 @@ function hideLoading() {
   document.getElementById('loadingOverlay').classList.add('hidden');
 }
 
-/**
- * Modal message.
- */
 function setModalMessage(message, type = '') {
   const messageEl = document.getElementById('modalMessage');
   messageEl.textContent = message;
@@ -834,9 +733,6 @@ function clearModalMessage() {
   setModalMessage('', '');
 }
 
-/**
- * Toast message.
- */
 let toastTimeout = null;
 
 function showToast(message, type = '') {
@@ -854,9 +750,6 @@ function showToast(message, type = '') {
   }, 3200);
 }
 
-/**
- * Helpers
- */
 function valueOrDash(value) {
   return value && String(value).trim() ? String(value).trim() : '—';
 }
