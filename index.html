@@ -6,7 +6,6 @@
 
   <title>OSC Request Management Dashboard</title>
 
-  <!-- Google Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link 
@@ -14,14 +13,12 @@
     rel="stylesheet"
   >
 
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <div class="app-shell">
 
-    <!-- HEADER -->
     <header class="dashboard-header">
       <div class="header-copy">
         <p class="eyebrow">OSC MANAGEMENT PORTAL</p>
@@ -38,7 +35,6 @@
       </div>
     </header>
 
-    <!-- SUMMARY CARDS -->
     <section class="summary-grid">
       <div class="summary-card">
         <span class="summary-label">Total Requests</span>
@@ -65,10 +61,8 @@
       </div>
     </section>
 
-    <!-- MAIN DASHBOARD CARD -->
     <main class="dashboard-card">
 
-      <!-- NEW / UNASSIGNED REQUESTS PANEL -->
       <section id="newRequestsPanel" class="new-requests-panel hidden">
         <div class="panel-heading">
           <div>
@@ -108,7 +102,6 @@
         </div>
       </section>
 
-      <!-- TOOLBAR -->
       <div class="toolbar">
         <div>
           <h2 id="activeViewTitle">Open Projects</h2>
@@ -127,7 +120,7 @@
           <select id="statusFilter">
             <option value="">All Status</option>
             <option value="Pending">Pending</option>
-            <option value="In Progress">In Progress</option>
+            <option value="Ongoing">Ongoing</option>
             <option value="For Review">For Review</option>
             <option value="Revision">Revision</option>
             <option value="Completed">Completed</option>
@@ -137,7 +130,6 @@
         </div>
       </div>
 
-      <!-- TABS -->
       <nav class="tabs" aria-label="Dashboard views">
         <button class="tab-btn active" type="button" data-view="open">
           Open Projects
@@ -156,7 +148,6 @@
         </button>
       </nav>
 
-      <!-- MAIN TABLE -->
       <div class="table-wrap">
         <table>
           <thead>
@@ -164,49 +155,49 @@
               <th>
                 <button class="sort-btn" type="button" data-sort="Tracking Number">
                   Tracking No.
-                  <span class="sort-indicator" data-indicator="Tracking Number">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
               <th>
-                <button class="sort-btn" type="button" data-sort="Activity Proposal Title">
+                <button class="sort-btn" type="button" data-sort="requestDisplayTitle">
                   Request
-                  <span class="sort-indicator" data-indicator="Activity Proposal Title">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
               <th>
                 <button class="sort-btn" type="button" data-sort="Office">
                   Office
-                  <span class="sort-indicator" data-indicator="Office">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
               <th>
                 <button class="sort-btn" type="button" data-sort="Date Needed">
                   Date Needed
-                  <span class="sort-indicator" data-indicator="Date Needed">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
               <th>
                 <button class="sort-btn" type="button" data-sort="Status">
                   Status
-                  <span class="sort-indicator" data-indicator="Status">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
               <th>
                 <button class="sort-btn" type="button" data-sort="Assigned">
                   Assigned
-                  <span class="sort-indicator" data-indicator="Assigned">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
               <th>
                 <button class="sort-btn" type="button" data-sort="Ticket">
                   Ticket
-                  <span class="sort-indicator" data-indicator="Ticket">↕</span>
+                  <span class="sort-indicator">↕</span>
                 </button>
               </th>
 
@@ -227,7 +218,6 @@
     </main>
   </div>
 
-  <!-- DETAILS / EDIT MODAL -->
   <div id="requestModal" class="modal hidden" aria-hidden="true">
     <div class="modal-backdrop" id="modalBackdrop"></div>
 
@@ -246,7 +236,6 @@
 
       <div class="modal-body">
 
-        <!-- MANAGEMENT ACTIONS -->
         <section class="modal-section action-section">
           <div>
             <h3>Management Actions</h3>
@@ -260,7 +249,6 @@
           </button>
         </section>
 
-        <!-- EDITABLE MANAGEMENT FIELDS -->
         <section class="modal-section">
           <h3>Editable Management Fields</h3>
 
@@ -285,7 +273,7 @@
               <select id="editStatus">
                 <option value="">Select Status</option>
                 <option value="Pending">Pending</option>
-                <option value="In Progress">In Progress</option>
+                <option value="Ongoing">Ongoing</option>
                 <option value="For Review">For Review</option>
                 <option value="Revision">Revision</option>
                 <option value="Completed">Completed</option>
@@ -364,13 +352,10 @@
           </div>
         </section>
 
-        <!-- SUBMITTED REQUEST DETAILS -->
         <section class="modal-section">
           <h3>Submitted Request Details</h3>
 
-          <div class="details-grid" id="requestDetailsGrid">
-            <!-- Filled by script.js -->
-          </div>
+          <div class="details-grid" id="requestDetailsGrid"></div>
         </section>
 
       </div>
@@ -391,7 +376,6 @@
     </div>
   </div>
 
-  <!-- LOADING OVERLAY -->
   <div id="loadingOverlay" class="loading-overlay hidden">
     <div class="loading-card">
       <div class="loader"></div>
@@ -399,12 +383,10 @@
     </div>
   </div>
 
-  <!-- TOAST MESSAGE -->
   <div id="toast" class="toast hidden">
     <p id="toastMessage">Dashboard updated.</p>
   </div>
 
-  <!-- JS -->
   <script src="script.js"></script>
 </body>
 </html>
