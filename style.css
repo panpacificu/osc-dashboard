@@ -174,6 +174,65 @@ button {
   backdrop-filter: blur(10px);
 }
 
+/* NEW / UNASSIGNED PANEL */
+
+.new-requests-panel {
+  border: 1.5px solid rgba(183, 121, 31, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(183, 121, 31, 0.08), transparent 28%),
+    #fffdf8;
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 26px;
+}
+
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.panel-heading h2 {
+  color: var(--brand-blue);
+  font-size: 1.35rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.panel-heading p {
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 0.92rem;
+  max-width: 760px;
+}
+
+.panel-count {
+  min-width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #fff8e6;
+  color: var(--warning);
+  border: 1px solid #f4dfaa;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.compact-table table {
+  min-width: 920px;
+}
+
+.compact-table td {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+/* TOOLBAR */
+
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -303,6 +362,10 @@ th {
 }
 
 th:last-child {
+  padding: 16px 14px;
+}
+
+.new-requests-panel th {
   padding: 16px 14px;
 }
 
@@ -887,6 +950,14 @@ tbody tr:last-child td {
 
   .summary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .panel-count {
+    align-self: flex-start;
   }
 
   .toolbar-controls {
