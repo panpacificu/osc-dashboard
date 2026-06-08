@@ -61,8 +61,6 @@ button {
   margin: 0 auto;
 }
 
-/* HEADER */
-
 .dashboard-header {
   background: rgba(255,255,255,.96);
   border: 1px solid var(--border);
@@ -106,8 +104,6 @@ button {
   gap: 10px;
   flex-shrink: 0;
 }
-
-/* SUMMARY CARDS */
 
 .summary-grid {
   display: grid;
@@ -163,8 +159,6 @@ button {
   line-height: 1.5;
 }
 
-/* MAIN CARD */
-
 .dashboard-card {
   background: rgba(255,255,255,.96);
   border: 1px solid var(--border);
@@ -173,8 +167,6 @@ button {
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
 }
-
-/* NEW / UNASSIGNED PANEL */
 
 .new-requests-panel {
   border: 1.5px solid rgba(183, 121, 31, 0.28);
@@ -230,8 +222,6 @@ button {
   padding-top: 14px;
   padding-bottom: 14px;
 }
-
-/* TOOLBAR */
 
 .toolbar {
   display: flex;
@@ -294,8 +284,6 @@ label {
   margin-bottom: 8px;
 }
 
-/* TABS */
-
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -328,8 +316,6 @@ label {
   color: #ffffff;
   box-shadow: 0 8px 18px rgba(38,63,119,.18);
 }
-
-/* TABLE */
 
 .table-wrap {
   width: 100%;
@@ -475,8 +461,6 @@ tbody tr:last-child td {
   padding: 34px 14px;
 }
 
-/* BADGES */
-
 .badge {
   display: inline-flex;
   align-items: center;
@@ -497,7 +481,7 @@ tbody tr:last-child td {
   border-color: #f4dfaa;
 }
 
-.badge.in-progress {
+.badge.ongoing {
   background: #eaf1ff;
   color: var(--brand-blue);
   border-color: #cfdaf7;
@@ -556,8 +540,6 @@ tbody tr:last-child td {
   color: var(--danger);
   border-color: #ffc9c9;
 }
-
-/* BUTTONS */
 
 .primary-btn,
 .secondary-btn,
@@ -637,8 +619,6 @@ tbody tr:last-child td {
   background: #ffffff;
   transform: translateY(-1px);
 }
-
-/* MODAL */
 
 .modal {
   position: fixed;
@@ -821,8 +801,6 @@ tbody tr:last-child td {
   gap: 10px;
 }
 
-/* LOADING */
-
 .loading-overlay {
   position: fixed;
   inset: 0;
@@ -868,8 +846,6 @@ tbody tr:last-child td {
   }
 }
 
-/* TOAST */
-
 .toast {
   position: fixed;
   right: 22px;
@@ -910,8 +886,6 @@ tbody tr:last-child td {
     transform: translateY(0);
   }
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 1000px) {
   .summary-grid {
