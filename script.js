@@ -4,7 +4,7 @@
  * Backend: Google Apps Script Web App
  ****************************************************/
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzJm6yMelTE5TSZE0T0tBH4efVOWGFDxZk55BLZ_LgFmxewRzA3tqaczWWoM2ZGrCwBSw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec';
 
 /**
  * App state
