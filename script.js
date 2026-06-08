@@ -136,6 +136,7 @@ function refreshDashboard() {
 
       allRequests = response.requests || [];
       updateSummaryCards();
+      renderNewRequestsPanel();
       renderCurrentView();
       showToast('Dashboard refreshed.', 'success');
     })
@@ -173,7 +174,7 @@ function updateViewHeader() {
   const viewMap = {
     open: {
       title: 'Open Projects',
-      subtitle: 'Requests that are still active and not yet marked as completed.'
+      subtitle: 'Requests that are already assigned and marked as Open.'
     },
     all: {
       title: 'All Requests',
@@ -185,7 +186,7 @@ function updateViewHeader() {
     },
     unassigned: {
       title: 'Unassigned Requests',
-      subtitle: 'Requests that do not currently have an assigned staff member.'
+      subtitle: 'Requests that are not yet assigned or not yet opened.'
     }
   };
 
@@ -194,7 +195,7 @@ function updateViewHeader() {
 }
 
 /**
- * Render current table view.
+ * Render current main table view.
  */
 function renderCurrentView() {
   let requests = getRequestsForCurrentView();
@@ -212,60 +213,106 @@ function renderCurrentView() {
   const tbody = document.getElementById('requestTableBody');
 
   tbody.innerHTML = requests.map((request) => {
-    const trackingNumber = valueOrDash(request['Tracking Number']);
-    const title = valueOrDash(request['Activity Proposal Title'] || request['Request']);
-    const requester = valueOrDash(request.fullName);
-    const office = valueOrDash(request['Office']);
-    const dateNeeded = valueOrDash(request['Date Needed']);
-    const status = valueOrDefault(request['Status'], 'Pending');
-    const assigned = valueOrDefault(request['Assigned'], 'Unassigned');
-    const ticket = valueOrDefault(request['Ticket'], 'Open');
-
-    const isOverdue = request.isOverdue;
-    const assignedClass = assigned === 'Unassigned' ? 'assigned-empty' : 'assigned-text';
-
-    return `
-      <tr>
-        <td>
-          <span class="tracking-text">${escapeHtml(trackingNumber)}</span>
-        </td>
-
-        <td>
-          <div class="request-title">${escapeHtml(title)}</div>
-          <div class="request-meta">${escapeHtml(requester)}</div>
-        </td>
-
-        <td>${escapeHtml(office)}</td>
-
-        <td>
-          <span class="date-needed ${isOverdue ? 'overdue' : ''}">
-            ${escapeHtml(dateNeeded)}
-          </span>
-          ${isOverdue ? '<div class="request-meta">Overdue</div>' : ''}
-        </td>
-
-        <td>
-          ${createStatusBadge(status)}
-        </td>
-
-        <td>
-          <span class="${assignedClass}">
-            ${escapeHtml(assigned)}
-          </span>
-        </td>
-
-        <td>
-          ${createTicketBadge(ticket)}
-        </td>
-
-        <td>
-          <button class="table-btn" type="button" onclick="openRequestModal(${request.rowNumber})">
-            View / Edit
-          </button>
-        </td>
-      </tr>
-    `;
+    return createRequestRow(request, 'View / Edit');
   }).join('');
+}
+
+/**
+ * Render New / Unassigned Requests panel above the main table.
+ * This panel hides automatically when empty.
+ */
+function renderNewRequestsPanel() {
+  const panel = document.getElementById('newRequestsPanel');
+  const countEl = document.getElementById('newRequestsCount');
+  const tbody = document.getElementById('newRequestTableBody');
+
+  if (!panel || !countEl || !tbody) return;
+
+  const newRequests = allRequests
+    .filter((item) => item.isUnassigned)
+    .sort((a, b) => {
+      const dateA = new Date(a['Timestamp']).getTime();
+      const dateB = new Date(b['Timestamp']).getTime();
+
+      if (Number.isNaN(dateA) && Number.isNaN(dateB)) return 0;
+      if (Number.isNaN(dateA)) return 1;
+      if (Number.isNaN(dateB)) return -1;
+
+      return dateB - dateA;
+    });
+
+  if (!newRequests.length) {
+    panel.classList.add('hidden');
+    tbody.innerHTML = '';
+    countEl.textContent = '0';
+    return;
+  }
+
+  panel.classList.remove('hidden');
+  countEl.textContent = newRequests.length;
+
+  tbody.innerHTML = newRequests.map((request) => {
+    return createRequestRow(request, 'Assign / Open');
+  }).join('');
+}
+
+/**
+ * Reusable table row.
+ */
+function createRequestRow(request, buttonLabel = 'View / Edit') {
+  const trackingNumber = valueOrDash(request['Tracking Number']);
+  const title = valueOrDash(request['Activity Proposal Title'] || request['Request']);
+  const requester = valueOrDash(request.fullName);
+  const office = valueOrDash(request['Office']);
+  const dateNeeded = valueOrDash(request['Date Needed']);
+  const status = valueOrDefault(request['Status'], 'Pending');
+  const assigned = valueOrDefault(request['Assigned'], 'Unassigned');
+  const ticket = valueOrDefault(request['Ticket'], 'Not Yet Opened');
+
+  const isOverdue = request.isOverdue;
+  const assignedClass = assigned === 'Unassigned' ? 'assigned-empty' : 'assigned-text';
+
+  return `
+    <tr>
+      <td>
+        <span class="tracking-text">${escapeHtml(trackingNumber)}</span>
+      </td>
+
+      <td>
+        <div class="request-title">${escapeHtml(title)}</div>
+        <div class="request-meta">${escapeHtml(requester)}</div>
+      </td>
+
+      <td>${escapeHtml(office)}</td>
+
+      <td>
+        <span class="date-needed ${isOverdue ? 'overdue' : ''}">
+          ${escapeHtml(dateNeeded)}
+        </span>
+        ${isOverdue ? '<div class="request-meta">Overdue</div>' : ''}
+      </td>
+
+      <td>
+        ${createStatusBadge(status)}
+      </td>
+
+      <td>
+        <span class="${assignedClass}">
+          ${escapeHtml(assigned)}
+        </span>
+      </td>
+
+      <td>
+        ${createTicketBadge(ticket)}
+      </td>
+
+      <td>
+        <button class="table-btn" type="button" onclick="openRequestModal(${request.rowNumber})">
+          ${escapeHtml(buttonLabel)}
+        </button>
+      </td>
+    </tr>
+  `;
 }
 
 /**
@@ -491,7 +538,14 @@ function populateDetailsGrid(request) {
   grid.innerHTML = DETAIL_FIELDS.map((fieldName) => {
     const rawValue = request[fieldName] || '';
     const value = rawValue || '—';
-    const isLong = String(value).length > 80 || ['Description', 'Caption', 'Remarks', 'Notes', 'Assets Drive Link', 'Project Link'].includes(fieldName);
+    const isLong = String(value).length > 80 || [
+      'Description',
+      'Caption',
+      'Remarks',
+      'Notes',
+      'Assets Drive Link',
+      'Project Link'
+    ].includes(fieldName);
 
     return `
       <div class="detail-item ${isLong ? 'full' : ''}">
@@ -514,6 +568,7 @@ function handleSaveChanges() {
   const updates = collectEditFieldValues();
 
   setModalMessage('Saving changes...', '');
+  showLoading('Saving changes...');
 
   callApi('updateRequest', {
     rowNumber: selectedRequest.rowNumber,
@@ -534,10 +589,14 @@ function handleSaveChanges() {
         throw new Error(response.message || 'Unable to reload requests.');
       }
 
+      const currentRowNumber = selectedRequest.rowNumber;
+
       allRequests = response.requests || [];
       updateSummaryCards();
+      renderNewRequestsPanel();
 
-      selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(selectedRequest.rowNumber));
+      selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(currentRowNumber));
+
       if (selectedRequest) {
         populateEditFields(selectedRequest);
         populateDetailsGrid(selectedRequest);
@@ -549,6 +608,9 @@ function handleSaveChanges() {
       console.error(error);
       setModalMessage(error.message || 'Unable to save changes.', 'error');
       showToast(error.message || 'Unable to save changes.', 'error');
+    })
+    .finally(() => {
+      hideLoading();
     });
 }
 
@@ -578,7 +640,7 @@ function handleMarkCompleted() {
   }
 
   const confirmed = window.confirm(
-    'Mark this request as completed? This will set Ticket to Closed and email tracking columns to Sent.'
+    'Mark this request as completed? This will set Ticket to Closed and send the closing email if not yet sent.'
   );
 
   if (!confirmed) return;
@@ -604,10 +666,14 @@ function handleMarkCompleted() {
         throw new Error(response.message || 'Unable to reload requests.');
       }
 
+      const currentRowNumber = selectedRequest.rowNumber;
+
       allRequests = response.requests || [];
       updateSummaryCards();
+      renderNewRequestsPanel();
 
-      selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(selectedRequest.rowNumber));
+      selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(currentRowNumber));
+
       if (selectedRequest) {
         populateEditFields(selectedRequest);
         populateDetailsGrid(selectedRequest);
@@ -700,7 +766,7 @@ function createStatusBadge(status) {
  * Create ticket badge.
  */
 function createTicketBadge(ticket) {
-  const cleanTicket = valueOrDefault(ticket, 'Open');
+  const cleanTicket = valueOrDefault(ticket, 'Not Yet Opened');
   const normalized = normalize(cleanTicket);
 
   let className = 'blank';
