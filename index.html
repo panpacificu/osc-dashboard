@@ -216,6 +216,17 @@
       </div>
 
     </main>
+
+    <footer class="dashboard-footer">
+      <p>
+        OSC Request Management Dashboard
+        <span id="footerVersion">v1.3.1</span>
+      </p>
+      <p>
+        Last updated:
+        <span id="footerUpdated">—</span>
+      </p>
+    </footer>
   </div>
 
   <div id="requestModal" class="modal hidden" aria-hidden="true">
@@ -240,7 +251,7 @@
           <div>
             <h3>Management Actions</h3>
             <p>
-              Assign a staff member first before opening a ticket. Opening and closing tickets can trigger the appropriate email automation.
+              Assign a staff member first before opening a ticket. Opening and closing tickets can trigger the appropriate email automation and chat notification.
             </p>
           </div>
 
@@ -354,7 +365,6 @@
 
         <section class="modal-section">
           <h3>Submitted Request Details</h3>
-
           <div class="details-grid" id="requestDetailsGrid"></div>
         </section>
 
@@ -376,6 +386,47 @@
     </div>
   </div>
 
+  <button id="adminSummaryToggle" class="admin-summary-toggle" type="button" aria-label="Open admin summary">
+    ↗
+  </button>
+
+  <aside id="adminSummaryPanel" class="admin-summary-panel hidden" aria-label="Admin summary">
+    <div class="admin-summary-header">
+      <div>
+        <p class="eyebrow">ADMIN SUMMARY</p>
+        <h2>Request Insights</h2>
+      </div>
+      <button id="adminSummaryClose" class="mini-close-btn" type="button" aria-label="Close admin summary">×</button>
+    </div>
+
+    <div class="admin-summary-body">
+      <section class="admin-summary-section">
+        <h3>Overview</h3>
+        <div id="adminOverviewStats" class="mini-stat-grid"></div>
+      </section>
+
+      <section class="admin-summary-section">
+        <h3>Completed by Staff</h3>
+        <div id="adminCompletedByStaff" class="summary-list"></div>
+      </section>
+
+      <section class="admin-summary-section">
+        <h3>Requests by Type</h3>
+        <div id="adminRequestTypeStats" class="summary-list"></div>
+      </section>
+
+      <section class="admin-summary-section">
+        <h3>Top Offices</h3>
+        <div id="adminOfficeStats" class="summary-list"></div>
+      </section>
+
+      <section class="admin-summary-section">
+        <h3>Requested Outputs</h3>
+        <div id="adminOutputStats" class="summary-list"></div>
+      </section>
+    </div>
+  </aside>
+
   <div id="loadingOverlay" class="loading-overlay hidden">
     <div class="loading-card">
       <div class="loader"></div>
@@ -387,6 +438,7 @@
     <p id="toastMessage">Dashboard updated.</p>
   </div>
 
+  <script src="config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

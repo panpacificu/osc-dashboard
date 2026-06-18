@@ -4,7 +4,11 @@
  * Backend: Google Apps Script Web App
  ****************************************************/
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec';
+const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
+
+const API_URL = DASHBOARD_CONFIG.API_URL || '';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.1';
+const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
 
 let allRequests = [];
 let currentView = 'open';
@@ -70,6 +74,7 @@ const EDITABLE_FIELDS = {
 
 document.addEventListener('DOMContentLoaded', () => {
   bindEvents();
+  updateFooterInfo();
   refreshDashboard();
 });
 
@@ -79,15 +84,11 @@ function bindEvents() {
   document.getElementById('statusFilter').addEventListener('change', renderCurrentView);
 
   document.querySelectorAll('.tab-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      switchView(button.dataset.view);
-    });
+    button.addEventListener('click', () => switchView(button.dataset.view));
   });
 
   document.querySelectorAll('.sort-btn').forEach((button) => {
-    button.addEventListener('click', () => {
-      handleSort(button.dataset.sort);
-    });
+    button.addEventListener('click', () => handleSort(button.dataset.sort));
   });
 
   document.getElementById('modalBackdrop').addEventListener('click', closeModal);
@@ -96,8 +97,14 @@ function bindEvents() {
   document.getElementById('saveChangesBtn').addEventListener('click', handleSaveChanges);
   document.getElementById('markCompletedBtn').addEventListener('click', handleMarkCompleted);
 
+  document.getElementById('adminSummaryToggle').addEventListener('click', toggleAdminSummary);
+  document.getElementById('adminSummaryClose').addEventListener('click', closeAdminSummary);
+
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeModal();
+    if (event.key === 'Escape') {
+      closeModal();
+      closeAdminSummary();
+    }
   });
 }
 
@@ -112,14 +119,12 @@ function refreshDashboard() {
         throw new Error(response.message || 'Unable to load requests.');
       }
 
-      allRequests = (response.requests || []).map((item) => {
-        item.requestDisplayTitle = getRequestTitle(item);
-        return item;
-      });
+      allRequests = normalizeLoadedRequests(response.requests || []);
 
       updateSummaryCards();
       renderNewRequestsPanel();
       renderCurrentView();
+      renderAdminSummary();
       showToast('Dashboard refreshed.', 'success');
     })
     .catch((error) => {
@@ -130,6 +135,13 @@ function refreshDashboard() {
     .finally(() => {
       hideLoading();
     });
+}
+
+function normalizeLoadedRequests(requests) {
+  return requests.map((item) => {
+    item.requestDisplayTitle = getRequestTitle(item);
+    return item;
+  });
 }
 
 function switchView(view) {
@@ -512,13 +524,11 @@ function handleSaveChanges() {
 
       const currentRowNumber = selectedRequest.rowNumber;
 
-      allRequests = (response.requests || []).map((item) => {
-        item.requestDisplayTitle = getRequestTitle(item);
-        return item;
-      });
+      allRequests = normalizeLoadedRequests(response.requests || []);
 
       updateSummaryCards();
       renderNewRequestsPanel();
+      renderAdminSummary();
 
       selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(currentRowNumber));
 
@@ -559,7 +569,7 @@ function handleMarkCompleted() {
   }
 
   const confirmed = window.confirm(
-    'Mark this request as completed? This will set Ticket to Closed and send the closing email if not yet sent.'
+    'Mark this request as completed? This will set Ticket to Closed, send the closing email if not yet sent, and send a chat notification if webhook is configured.'
   );
 
   if (!confirmed) return;
@@ -587,13 +597,11 @@ function handleMarkCompleted() {
 
       const currentRowNumber = selectedRequest.rowNumber;
 
-      allRequests = (response.requests || []).map((item) => {
-        item.requestDisplayTitle = getRequestTitle(item);
-        return item;
-      });
+      allRequests = normalizeLoadedRequests(response.requests || []);
 
       updateSummaryCards();
       renderNewRequestsPanel();
+      renderAdminSummary();
 
       selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(currentRowNumber));
 
@@ -613,6 +621,113 @@ function handleMarkCompleted() {
       hideLoading();
     });
 }
+
+/****************************************************
+ * ADMIN SUMMARY
+ ****************************************************/
+
+function toggleAdminSummary() {
+  const panel = document.getElementById('adminSummaryPanel');
+  panel.classList.toggle('hidden');
+
+  if (!panel.classList.contains('hidden')) {
+    renderAdminSummary();
+  }
+}
+
+function closeAdminSummary() {
+  document.getElementById('adminSummaryPanel').classList.add('hidden');
+}
+
+function renderAdminSummary() {
+  renderOverviewStats();
+  renderTopList('adminCompletedByStaff', countByField(allRequests.filter((item) => item.isCompleted), 'Assigned'), 8);
+  renderTopList('adminRequestTypeStats', countByField(allRequests, 'Request Type'), 8);
+  renderTopList('adminOfficeStats', countByField(allRequests, 'Office'), 8);
+  renderTopList('adminOutputStats', countRequestedOutputs(allRequests), 10);
+}
+
+function renderOverviewStats() {
+  const stats = [
+    { label: 'Total', value: allRequests.length },
+    { label: 'Open', value: allRequests.filter((item) => item.isOpen).length },
+    { label: 'Completed', value: allRequests.filter((item) => item.isCompleted).length },
+    { label: 'Unassigned', value: allRequests.filter((item) => item.isUnassigned).length },
+    { label: 'Overdue', value: allRequests.filter((item) => item.isOverdue).length }
+  ];
+
+  document.getElementById('adminOverviewStats').innerHTML = stats.map((stat) => `
+    <div class="mini-stat-card">
+      <strong>${escapeHtml(stat.value)}</strong>
+      <span>${escapeHtml(stat.label)}</span>
+    </div>
+  `).join('');
+}
+
+function countByField(requests, fieldName) {
+  const counts = {};
+
+  requests.forEach((request) => {
+    const value = valueOrDefault(request[fieldName], 'Unspecified');
+    counts[value] = (counts[value] || 0) + 1;
+  });
+
+  return counts;
+}
+
+function countRequestedOutputs(requests) {
+  const counts = {};
+
+  requests.forEach((request) => {
+    const raw = request['Request'] || 'Unspecified';
+
+    String(raw)
+      .split(/[,;\n]+/)
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .forEach((item) => {
+        counts[item] = (counts[item] || 0) + 1;
+      });
+  });
+
+  return counts;
+}
+
+function renderTopList(elementId, countObject, limit = 8) {
+  const container = document.getElementById(elementId);
+  if (!container) return;
+
+  const entries = Object.entries(countObject)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit);
+
+  if (!entries.length) {
+    container.innerHTML = '<p class="summary-empty">No data yet.</p>';
+    return;
+  }
+
+  const maxValue = Math.max(...entries.map((entry) => entry[1]), 1);
+
+  container.innerHTML = entries.map(([label, value]) => {
+    const width = Math.max((value / maxValue) * 100, 8);
+
+    return `
+      <div class="summary-list-item">
+        <div class="summary-list-row">
+          <span>${escapeHtml(label)}</span>
+          <strong>${escapeHtml(value)}</strong>
+        </div>
+        <div class="summary-bar">
+          <span style="width:${width}%"></span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+/****************************************************
+ * API + UI HELPERS
+ ****************************************************/
 
 function callApi(action, params = {}) {
   return new Promise((resolve, reject) => {
@@ -748,6 +863,27 @@ function showToast(message, type = '') {
   toastTimeout = setTimeout(() => {
     toast.classList.add('hidden');
   }, 3200);
+}
+
+function updateFooterInfo() {
+  document.getElementById('footerVersion').textContent = APP_VERSION;
+
+  if (LAST_UPDATED) {
+    document.getElementById('footerUpdated').textContent = LAST_UPDATED;
+    return;
+  }
+
+  const updated = document.lastModified
+    ? new Date(document.lastModified)
+    : new Date();
+
+  document.getElementById('footerUpdated').textContent = updated.toLocaleString('en-PH', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 }
 
 function valueOrDash(value) {
