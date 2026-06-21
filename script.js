@@ -7,12 +7,14 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.1';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.2';
 const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
 
 let allRequests = [];
 let currentView = 'open';
 let selectedRequest = null;
+let adminSummaryDirty = true;
+let searchDebounceTimer = null;
 
 let currentSort = {
   field: 'Date Needed',
@@ -80,7 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function bindEvents() {
   document.getElementById('refreshBtn').addEventListener('click', refreshDashboard);
-  document.getElementById('searchInput').addEventListener('input', renderCurrentView);
+  document.getElementById('searchInput').addEventListener('input', () => {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(renderCurrentView, 160);
+  });
   document.getElementById('statusFilter').addEventListener('change', renderCurrentView);
 
   document.querySelectorAll('.tab-btn').forEach((button) => {
@@ -99,6 +104,7 @@ function bindEvents() {
 
   document.getElementById('adminSummaryToggle').addEventListener('click', toggleAdminSummary);
   document.getElementById('adminSummaryClose').addEventListener('click', closeAdminSummary);
+  document.getElementById('adminDrawerOverlay').addEventListener('click', closeAdminSummary);
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
@@ -121,10 +127,10 @@ function refreshDashboard() {
 
       allRequests = normalizeLoadedRequests(response.requests || []);
 
+      adminSummaryDirty = true;
       updateSummaryCards();
       renderNewRequestsPanel();
       renderCurrentView();
-      renderAdminSummary();
       showToast('Dashboard refreshed.', 'success');
     })
     .catch((error) => {
@@ -526,9 +532,9 @@ function handleSaveChanges() {
 
       allRequests = normalizeLoadedRequests(response.requests || []);
 
+      adminSummaryDirty = true;
       updateSummaryCards();
       renderNewRequestsPanel();
-      renderAdminSummary();
 
       selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(currentRowNumber));
 
@@ -599,9 +605,9 @@ function handleMarkCompleted() {
 
       allRequests = normalizeLoadedRequests(response.requests || []);
 
+      adminSummaryDirty = true;
       updateSummaryCards();
       renderNewRequestsPanel();
-      renderAdminSummary();
 
       selectedRequest = allRequests.find((item) => Number(item.rowNumber) === Number(currentRowNumber));
 
@@ -628,15 +634,42 @@ function handleMarkCompleted() {
 
 function toggleAdminSummary() {
   const panel = document.getElementById('adminSummaryPanel');
-  panel.classList.toggle('hidden');
 
-  if (!panel.classList.contains('hidden')) {
-    renderAdminSummary();
+  if (panel.classList.contains('open')) {
+    closeAdminSummary();
+  } else {
+    openAdminSummary();
   }
 }
 
+function openAdminSummary() {
+  const panel = document.getElementById('adminSummaryPanel');
+  const overlay = document.getElementById('adminDrawerOverlay');
+  const toggle = document.getElementById('adminSummaryToggle');
+
+  if (adminSummaryDirty) {
+    renderAdminSummary();
+  }
+
+  panel.classList.add('open');
+  overlay.classList.add('visible');
+  panel.setAttribute('aria-hidden', 'false');
+  overlay.setAttribute('aria-hidden', 'false');
+  toggle.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('admin-drawer-open');
+}
+
 function closeAdminSummary() {
-  document.getElementById('adminSummaryPanel').classList.add('hidden');
+  const panel = document.getElementById('adminSummaryPanel');
+  const overlay = document.getElementById('adminDrawerOverlay');
+  const toggle = document.getElementById('adminSummaryToggle');
+
+  panel.classList.remove('open');
+  overlay.classList.remove('visible');
+  panel.setAttribute('aria-hidden', 'true');
+  overlay.setAttribute('aria-hidden', 'true');
+  toggle.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('admin-drawer-open');
 }
 
 function renderAdminSummary() {
@@ -645,6 +678,7 @@ function renderAdminSummary() {
   renderTopList('adminRequestTypeStats', countByField(allRequests, 'Request Type'), 8);
   renderTopList('adminOfficeStats', countByField(allRequests, 'Office'), 8);
   renderTopList('adminOutputStats', countRequestedOutputs(allRequests), 10);
+  adminSummaryDirty = false;
 }
 
 function renderOverviewStats() {

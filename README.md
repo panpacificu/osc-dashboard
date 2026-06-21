@@ -1,4 +1,4 @@
-# OSC Dashboard v1.3.1
+# OSC Dashboard v1.3.2
 
 ## Included files
 
@@ -39,6 +39,16 @@ Supported platform values:
 3. After editing Apps Script, redeploy:
 
 Deploy → Manage deployments → Edit → New version → Deploy
+
+## New in v1.3.2
+
+- Replaced the floating admin statistics card with a right-side drawer
+- Added click-outside overlay and Escape-key closing
+- Admin statistics are calculated only when the drawer opens
+- Added search input debounce to reduce repeated table rendering
+- Reduced blur, gradients, and heavy shadows
+- Added deferred loading for `config.js` and `script.js`
+- Added lightweight browser rendering helpers
 
 ## New in v1.3.1
 
