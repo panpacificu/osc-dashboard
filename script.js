@@ -7,14 +7,18 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.2';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.3';
 const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
+const CHANGELOG = Array.isArray(DASHBOARD_CONFIG.CHANGELOG)
+  ? DASHBOARD_CONFIG.CHANGELOG
+  : [];
 
 let allRequests = [];
 let currentView = 'open';
 let selectedRequest = null;
 let adminSummaryDirty = true;
 let searchDebounceTimer = null;
+let changelogRendered = false;
 
 let currentSort = {
   field: 'Date Needed',
@@ -81,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function bindEvents() {
-  document.getElementById('refreshBtn').addEventListener('click', refreshDashboard);
   document.getElementById('searchInput').addEventListener('input', () => {
     clearTimeout(searchDebounceTimer);
     searchDebounceTimer = setTimeout(renderCurrentView, 160);
@@ -102,14 +105,21 @@ function bindEvents() {
   document.getElementById('saveChangesBtn').addEventListener('click', handleSaveChanges);
   document.getElementById('markCompletedBtn').addEventListener('click', handleMarkCompleted);
 
+  document.getElementById('floatingRefreshBtn').addEventListener('click', refreshDashboard);
+
   document.getElementById('adminSummaryToggle').addEventListener('click', toggleAdminSummary);
   document.getElementById('adminSummaryClose').addEventListener('click', closeAdminSummary);
   document.getElementById('adminDrawerOverlay').addEventListener('click', closeAdminSummary);
+
+  document.getElementById('changelogToggle').addEventListener('click', toggleChangelog);
+  document.getElementById('changelogClose').addEventListener('click', closeChangelog);
+  document.getElementById('changelogDrawerOverlay').addEventListener('click', closeChangelog);
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeModal();
       closeAdminSummary();
+      closeChangelog();
     }
   });
 }
@@ -117,6 +127,7 @@ function bindEvents() {
 function refreshDashboard() {
   if (!isApiConfigured()) return;
 
+  setRefreshButtonState(true);
   showLoading('Loading requests...');
 
   callApi('getRequests')
@@ -139,6 +150,7 @@ function refreshDashboard() {
       renderEmptyState('Unable to load requests.');
     })
     .finally(() => {
+      setRefreshButtonState(false);
       hideLoading();
     });
 }
@@ -643,6 +655,8 @@ function toggleAdminSummary() {
 }
 
 function openAdminSummary() {
+  closeChangelog();
+
   const panel = document.getElementById('adminSummaryPanel');
   const overlay = document.getElementById('adminDrawerOverlay');
   const toggle = document.getElementById('adminSummaryToggle');
@@ -656,7 +670,7 @@ function openAdminSummary() {
   panel.setAttribute('aria-hidden', 'false');
   overlay.setAttribute('aria-hidden', 'false');
   toggle.setAttribute('aria-expanded', 'true');
-  document.body.classList.add('admin-drawer-open');
+  document.body.classList.add('drawer-open');
 }
 
 function closeAdminSummary() {
@@ -669,7 +683,9 @@ function closeAdminSummary() {
   panel.setAttribute('aria-hidden', 'true');
   overlay.setAttribute('aria-hidden', 'true');
   toggle.setAttribute('aria-expanded', 'false');
-  document.body.classList.remove('admin-drawer-open');
+  if (!document.getElementById('changelogPanel').classList.contains('open')) {
+    document.body.classList.remove('drawer-open');
+  }
 }
 
 function renderAdminSummary() {
@@ -757,6 +773,101 @@ function renderTopList(elementId, countObject, limit = 8) {
       </div>
     `;
   }).join('');
+}
+
+/****************************************************
+ * CHANGELOG DRAWER
+ ****************************************************/
+
+function toggleChangelog() {
+  const panel = document.getElementById('changelogPanel');
+
+  if (panel.classList.contains('open')) {
+    closeChangelog();
+  } else {
+    openChangelog();
+  }
+}
+
+function openChangelog() {
+  closeAdminSummary();
+
+  const panel = document.getElementById('changelogPanel');
+  const overlay = document.getElementById('changelogDrawerOverlay');
+  const toggle = document.getElementById('changelogToggle');
+
+  if (!changelogRendered) {
+    renderChangelog();
+  }
+
+  panel.classList.add('open');
+  overlay.classList.add('visible');
+  panel.setAttribute('aria-hidden', 'false');
+  overlay.setAttribute('aria-hidden', 'false');
+  toggle.setAttribute('aria-expanded', 'true');
+  document.body.classList.add('drawer-open');
+}
+
+function closeChangelog() {
+  const panel = document.getElementById('changelogPanel');
+  const overlay = document.getElementById('changelogDrawerOverlay');
+  const toggle = document.getElementById('changelogToggle');
+
+  if (!panel || !overlay || !toggle) return;
+
+  panel.classList.remove('open');
+  overlay.classList.remove('visible');
+  panel.setAttribute('aria-hidden', 'true');
+  overlay.setAttribute('aria-hidden', 'true');
+  toggle.setAttribute('aria-expanded', 'false');
+
+  if (!document.getElementById('adminSummaryPanel').classList.contains('open')) {
+    document.body.classList.remove('drawer-open');
+  }
+}
+
+function renderChangelog() {
+  const container = document.getElementById('changelogList');
+
+  if (!CHANGELOG.length) {
+    container.innerHTML = '<p class="summary-empty">No changelog entries yet.</p>';
+    changelogRendered = true;
+    return;
+  }
+
+  container.innerHTML = CHANGELOG.map((entry, index) => {
+    const changes = Array.isArray(entry.changes) ? entry.changes : [];
+
+    return `
+      <article class="changelog-entry ${index === 0 ? 'latest' : ''}">
+        <div class="changelog-entry-top">
+          <span class="changelog-version">${escapeHtml(entry.version || 'Update')}</span>
+          ${index === 0 ? '<span class="latest-badge">Latest</span>' : ''}
+        </div>
+
+        <p class="changelog-date">${escapeHtml(entry.date || '')}</p>
+        <h3>${escapeHtml(entry.title || 'Dashboard Update')}</h3>
+
+        <ul>
+          ${changes.map((change) => `<li>${escapeHtml(change)}</li>`).join('')}
+        </ul>
+      </article>
+    `;
+  }).join('');
+
+  changelogRendered = true;
+}
+
+function setRefreshButtonState(isRefreshing) {
+  const button = document.getElementById('floatingRefreshBtn');
+  if (!button) return;
+
+  button.disabled = isRefreshing;
+  button.classList.toggle('is-refreshing', isRefreshing);
+  button.setAttribute(
+    'aria-label',
+    isRefreshing ? 'Refreshing dashboard' : 'Refresh dashboard'
+  );
 }
 
 /****************************************************

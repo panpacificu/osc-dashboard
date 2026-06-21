@@ -4,9 +4,51 @@
  ****************************************************/
 
 window.OSC_DASHBOARD_CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec',
+  API_URL: 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE',
 
-  APP_VERSION: 'v1.3.2',
+  APP_VERSION: 'v1.3.3',
 
-  LAST_UPDATED: 'June 21, 2026'
+  LAST_UPDATED: 'June 21, 2026',
+
+  CHANGELOG: [
+    {
+      version: 'v1.3.3',
+      date: 'June 21, 2026',
+      title: 'Floating Controls and Changelog',
+      changes: [
+        'Moved Refresh to a floating button above Admin Statistics.',
+        'Removed the Refresh button from the dashboard header.',
+        'Added a left-side Changelog button and slide-out drawer.',
+        'Kept the controls lightweight with no additional icon library.'
+      ]
+    },
+    {
+      version: 'v1.3.2',
+      date: 'June 21, 2026',
+      title: 'Admin Statistics Sidebar',
+      changes: [
+        'Changed Admin Statistics from a floating card to a right-side drawer.',
+        'Reduced unnecessary rendering and heavy visual effects.',
+        'Added search input debounce for smoother filtering.'
+      ]
+    },
+    {
+      version: 'v1.3.1',
+      date: 'June 18, 2026',
+      title: 'Configuration File',
+      changes: [
+        'Added config.js for the Apps Script API URL, version, timestamp, and editable settings.'
+      ]
+    },
+    {
+      version: 'v1.3.0',
+      date: 'June 18, 2026',
+      title: 'Dashboard Insights and Webhook',
+      changes: [
+        'Added Admin Statistics.',
+        'Added optional completion webhook notifications.',
+        'Added footer version and last-updated timestamp.'
+      ]
+    }
+  ]
 };

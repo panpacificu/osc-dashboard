@@ -798,26 +798,71 @@ tbody tr:last-child td {
 
 /* ADMIN SUMMARY DRAWER */
 
-body.admin-drawer-open { overflow: hidden; }
+body.drawer-open { overflow: hidden; }
 
-.admin-summary-toggle {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 9902;
+.floating-icon-btn {
   width: 56px;
   height: 56px;
+  border: none;
   border-radius: 999px;
+  display: grid;
+  place-items: center;
   background: var(--brand-blue);
   color: #ffffff;
   box-shadow: var(--shadow-heavy);
   font-size: 1.15rem;
+  font-weight: 800;
+  transition: var(--transition);
 }
 
-.admin-summary-toggle:hover { background: var(--brand-blue-hover); transform: translateY(-2px); }
-.admin-summary-toggle[aria-expanded="true"] { background: var(--brand-green); }
+.floating-icon-btn:hover {
+  background: var(--brand-blue-hover);
+  transform: translateY(-2px);
+}
 
-.admin-drawer-overlay {
+.floating-icon-btn:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.right-floating-actions {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 9902;
+  display: grid;
+  gap: 12px;
+}
+
+.admin-summary-toggle,
+.refresh-floating-btn {
+  position: static;
+}
+
+.admin-summary-toggle[aria-expanded="true"],
+.changelog-toggle[aria-expanded="true"] {
+  background: var(--brand-green);
+}
+
+.refresh-floating-btn.is-refreshing span {
+  display: inline-block;
+  animation: refreshSpin 0.75s linear infinite;
+}
+
+@keyframes refreshSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.changelog-toggle {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 9902;
+}
+
+.drawer-overlay {
   position: fixed;
   inset: 0;
   z-index: 9899;
@@ -827,7 +872,7 @@ body.admin-drawer-open { overflow: hidden; }
   transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-.admin-drawer-overlay.visible { opacity: 1; visibility: visible; }
+.drawer-overlay.visible { opacity: 1; visibility: visible; }
 
 .admin-summary-drawer {
   position: fixed;
@@ -896,6 +941,124 @@ body.admin-drawer-open { overflow: hidden; }
 .dashboard-footer { text-align: center; padding: 18px 8px 0; display: grid; gap: 4px; }
 .dashboard-footer p { color: var(--muted); font-size: 0.82rem; line-height: 1.45; }
 .dashboard-footer span { color: var(--brand-blue); font-weight: 800; }
+
+
+/* CHANGELOG DRAWER */
+
+.changelog-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9901;
+  width: min(430px, 92vw);
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid var(--border);
+  box-shadow: 12px 0 36px rgba(25, 39, 68, 0.12);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-102%);
+  transition: transform 0.24s ease;
+  will-change: transform;
+}
+
+.changelog-drawer.open {
+  transform: translateX(0);
+}
+
+.changelog-header {
+  padding: 24px 22px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.changelog-header h2 {
+  color: var(--brand-blue);
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.changelog-header p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.changelog-list {
+  padding: 20px 22px 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 14px;
+}
+
+.changelog-entry {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #ffffff;
+  padding: 17px;
+}
+
+.changelog-entry.latest {
+  border-color: rgba(64, 111, 39, 0.32);
+  background: #fbfdf9;
+}
+
+.changelog-entry-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.changelog-version {
+  color: var(--brand-blue);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.latest-badge {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #eef7e9;
+  color: var(--brand-green);
+  border: 1px solid #cde7c0;
+  font-size: 0.64rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.changelog-date {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.changelog-entry h3 {
+  color: var(--brand-blue);
+  font-size: 0.96rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.changelog-entry ul {
+  padding-left: 18px;
+  color: var(--muted);
+  display: grid;
+  gap: 7px;
+}
+
+.changelog-entry li {
+  font-size: 0.82rem;
+  line-height: 1.48;
+}
 
 .loading-overlay {
   position: fixed;
@@ -1085,12 +1248,23 @@ body.admin-drawer-open { overflow: hidden; }
     width: 100%;
   }
 
-  .admin-summary-toggle {
+  .right-floating-actions {
     right: 16px;
     bottom: 16px;
   }
 
-  .admin-summary-drawer {
+  .changelog-toggle {
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .floating-icon-btn {
+    width: 52px;
+    height: 52px;
+  }
+
+  .admin-summary-drawer,
+  .changelog-drawer {
     width: min(390px, 94vw);
   }
 

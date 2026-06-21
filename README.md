@@ -1,4 +1,4 @@
-# OSC Dashboard v1.3.2
+# OSC Dashboard v1.3.3
 
 ## Included files
 
@@ -40,6 +40,15 @@ Supported platform values:
 
 Deploy → Manage deployments → Edit → New version → Deploy
 
+## New in v1.3.3
+
+- Added a floating Refresh button above Admin Statistics
+- Removed Refresh from the header
+- Added a left-side floating Changelog button
+- Added a left-side changelog drawer
+- Changelog entries can be edited inside `config.js`
+- No Apps Script backend changes are required
+
 ## New in v1.3.2
 
 - Replaced the floating admin statistics card with a right-side drawer
@@ -65,3 +74,22 @@ Deploy → Manage deployments → Edit → New version → Deploy
   - Requested outputs
 - Footer with version and last updated timestamp
 - Optional webhook notification when a task is completed
+
+
+## Editing the changelog
+
+Open `config.js` and edit the `CHANGELOG` array.
+
+Each entry uses:
+
+```js
+{
+  version: 'v1.3.3',
+  date: 'June 21, 2026',
+  title: 'Update title',
+  changes: [
+    'First change',
+    'Second change'
+  ]
+}
+```
