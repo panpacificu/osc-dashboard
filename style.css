@@ -920,6 +920,76 @@ body.drawer-open { overflow: hidden; }
 .mini-close-btn:hover { background: #ffffff; border-color: rgba(38,63,119,.22); }
 
 .admin-summary-body { padding: 20px 22px 28px; overflow-y: auto; overscroll-behavior: contain; }
+
+.form-availability-section {
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+.form-availability-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.form-availability-heading h3 { margin-bottom: 4px; }
+.form-availability-heading p { color: var(--muted); font-size: 0.78rem; line-height: 1.45; }
+
+.form-availability-badge {
+  flex-shrink: 0;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--border);
+}
+
+.form-availability-badge.open { color: var(--brand-green); background: #eef7e9; border-color: #cde7c0; }
+.form-availability-badge.closed { color: var(--danger); background: #fff0f0; border-color: #ffc9c9; }
+.form-availability-badge.loading { color: var(--muted); background: #f7f9fb; }
+
+.form-availability-card {
+  background: #f7f9fb;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.form-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.form-toggle-row strong { display: block; color: var(--brand-blue); font-size: 0.86rem; margin-bottom: 4px; }
+.form-toggle-row span:not(.availability-slider) { display: block; color: var(--muted); font-size: 0.75rem; line-height: 1.4; }
+
+.availability-switch { position: relative; width: 48px; height: 28px; flex-shrink: 0; }
+.availability-switch input { position: absolute; opacity: 0; pointer-events: none; }
+.availability-slider { position: absolute; inset: 0; border-radius: 999px; background: #cbd5df; transition: var(--transition); }
+.availability-slider::after { content: ''; position: absolute; width: 20px; height: 20px; left: 4px; top: 4px; border-radius: 50%; background: #fff; box-shadow: 0 2px 7px rgba(0,0,0,.18); transition: var(--transition); }
+.availability-switch input:checked + .availability-slider { background: var(--brand-green); }
+.availability-switch input:checked + .availability-slider::after { transform: translateX(20px); }
+.availability-switch input:disabled + .availability-slider { opacity: .6; cursor: wait; }
+
+.form-closed-message-label { display: block; color: var(--brand-blue); font-size: 0.75rem; font-weight: 800; margin: 0 0 7px; }
+.form-availability-card textarea { min-height: 88px; font-size: 0.8rem; padding: 11px 12px; background: #fff; }
+
+.form-availability-actions { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; }
+.form-availability-actions p { color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
+.form-availability-actions p.success { color: var(--brand-green); }
+.form-availability-actions p.error { color: var(--danger); }
+
+.form-status-save-btn { border: 0; border-radius: 999px; padding: 10px 13px; background: var(--brand-blue); color: #fff; font: inherit; font-size: 0.74rem; font-weight: 800; white-space: nowrap; }
+.form-status-save-btn:hover { background: var(--brand-blue-hover); }
+.form-status-save-btn:disabled { opacity: .55; cursor: wait; }
+
 .admin-summary-section { margin-bottom: 24px; content-visibility: auto; contain-intrinsic-size: 180px; }
 .admin-summary-section:last-child { margin-bottom: 0; }
 .admin-summary-section h3 { color: var(--brand-blue); font-size: 0.94rem; font-weight: 800; margin-bottom: 11px; }

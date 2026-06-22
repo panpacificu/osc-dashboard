@@ -214,7 +214,7 @@
     <footer class="dashboard-footer">
       <p>
         OSC Request Management Dashboard
-        <span id="footerVersion">v1.3.3</span>
+        <span id="footerVersion">v1.3.6</span>
       </p>
       <p>
         Last updated:
@@ -434,6 +434,46 @@
     </div>
 
     <div class="admin-summary-body">
+      <section class="admin-summary-section form-availability-section">
+        <div class="form-availability-heading">
+          <div>
+            <h3>Request Form Availability</h3>
+            <p>Open or temporarily close the public OSC Request Form.</p>
+          </div>
+
+          <span id="formAvailabilityBadge" class="form-availability-badge loading">Checking</span>
+        </div>
+
+        <div class="form-availability-card">
+          <div class="form-toggle-row">
+            <div>
+              <strong id="formAvailabilityTitle">Checking form status…</strong>
+              <span id="formAvailabilityDescription">Please wait while the current setting is loaded.</span>
+            </div>
+
+            <label class="availability-switch" aria-label="Toggle request form availability">
+              <input id="formAvailabilityToggle" type="checkbox" disabled>
+              <span class="availability-slider"></span>
+            </label>
+          </div>
+
+          <label class="form-closed-message-label" for="formClosedMessage">Message shown while closed</label>
+          <textarea
+            id="formClosedMessage"
+            rows="4"
+            placeholder="We are not currently receiving requests as of now. Please check back later."
+            disabled
+          ></textarea>
+
+          <div class="form-availability-actions">
+            <p id="formAvailabilityFeedback" aria-live="polite"></p>
+            <button id="saveFormAvailabilityBtn" class="form-status-save-btn" type="button" disabled>
+              Save Message
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section class="admin-summary-section">
         <h3>Overview</h3>
         <div id="adminOverviewStats" class="mini-stat-grid"></div>

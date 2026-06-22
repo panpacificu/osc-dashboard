@@ -6,11 +6,23 @@
 window.OSC_DASHBOARD_CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec',
 
-  APP_VERSION: 'v1.3.3',
+  APP_VERSION: 'v1.3.6',
 
-  LAST_UPDATED: 'June 21, 2026',
+  LAST_UPDATED: 'June 22, 2026',
 
   CHANGELOG: [
+    {
+      version: 'v1.3.6',
+      date: 'June 22, 2026',
+      title: 'Form Availability and Notification Updates',
+      changes: [
+        'Added a request form availability toggle inside Admin Statistics.',
+        'Added a customizable message shown when the request form is closed.',
+        'Added Google Chat notification cards for newly received requests.',
+        'Updated completion cards to link only to the OSC Dashboard.',
+        'Changed email headers to a solid Panpacific University blue.'
+      ]
+    },
     {
       version: 'v1.3.3',
       date: 'June 21, 2026',

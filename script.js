@@ -7,7 +7,7 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.3';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.6';
 const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
 const CHANGELOG = Array.isArray(DASHBOARD_CONFIG.CHANGELOG)
   ? DASHBOARD_CONFIG.CHANGELOG
@@ -19,6 +19,8 @@ let selectedRequest = null;
 let adminSummaryDirty = true;
 let searchDebounceTimer = null;
 let changelogRendered = false;
+let formStatusLoaded = false;
+let formStatusSaving = false;
 
 let currentSort = {
   field: 'Date Needed',
@@ -110,6 +112,9 @@ function bindEvents() {
   document.getElementById('adminSummaryToggle').addEventListener('click', toggleAdminSummary);
   document.getElementById('adminSummaryClose').addEventListener('click', closeAdminSummary);
   document.getElementById('adminDrawerOverlay').addEventListener('click', closeAdminSummary);
+
+  document.getElementById('formAvailabilityToggle').addEventListener('change', handleFormAvailabilityToggle);
+  document.getElementById('saveFormAvailabilityBtn').addEventListener('click', () => saveFormAvailability(false));
 
   document.getElementById('changelogToggle').addEventListener('click', toggleChangelog);
   document.getElementById('changelogClose').addEventListener('click', closeChangelog);
@@ -641,6 +646,144 @@ function handleMarkCompleted() {
 }
 
 /****************************************************
+ * REQUEST FORM AVAILABILITY
+ ****************************************************/
+
+function loadFormAvailability() {
+  setFormAvailabilityLoading(true);
+  setFormAvailabilityFeedback('Loading current form status…', '');
+
+  callApi('getFormStatus')
+    .then((response) => {
+      if (!response.success) {
+        throw new Error(response.message || 'Unable to load form status.');
+      }
+
+      applyFormAvailabilityState(response);
+      formStatusLoaded = true;
+      setFormAvailabilityFeedback('', '');
+    })
+    .catch((error) => {
+      console.error(error);
+      setFormAvailabilityFeedback(error.message || 'Unable to load form status.', 'error');
+    })
+    .finally(() => {
+      setFormAvailabilityLoading(false);
+    });
+}
+
+function handleFormAvailabilityToggle() {
+  if (formStatusSaving) return;
+  saveFormAvailability(true);
+}
+
+function saveFormAvailability(isToggleChange) {
+  const toggle = document.getElementById('formAvailabilityToggle');
+  const messageField = document.getElementById('formClosedMessage');
+  const saveButton = document.getElementById('saveFormAvailabilityBtn');
+
+  const enabled = toggle.checked;
+  const message = messageField.value.trim();
+
+  formStatusSaving = true;
+  toggle.disabled = true;
+  messageField.disabled = true;
+  saveButton.disabled = true;
+  setFormAvailabilityFeedback(
+    enabled ? 'Opening the request form…' : 'Closing the request form…',
+    ''
+  );
+
+  callApi('setFormStatus', {
+    enabled: String(enabled),
+    message
+  })
+    .then((response) => {
+      if (!response.success) {
+        throw new Error(response.message || 'Unable to save form status.');
+      }
+
+      applyFormAvailabilityState(response);
+      formStatusLoaded = true;
+      showToast(
+        response.enabled
+          ? 'The OSC Request Form is now open.'
+          : 'The OSC Request Form is now closed.',
+        'success'
+      );
+      setFormAvailabilityFeedback(
+        isToggleChange
+          ? 'Availability updated successfully.'
+          : 'Closed-form message saved successfully.',
+        'success'
+      );
+    })
+    .catch((error) => {
+      console.error(error);
+      toggle.checked = !enabled;
+      setFormAvailabilityFeedback(error.message || 'Unable to save form status.', 'error');
+      showToast(error.message || 'Unable to save form status.', 'error');
+    })
+    .finally(() => {
+      formStatusSaving = false;
+      toggle.disabled = false;
+      messageField.disabled = false;
+      saveButton.disabled = false;
+    });
+}
+
+function applyFormAvailabilityState(status) {
+  const enabled = Boolean(status.enabled);
+  const toggle = document.getElementById('formAvailabilityToggle');
+  const badge = document.getElementById('formAvailabilityBadge');
+  const title = document.getElementById('formAvailabilityTitle');
+  const description = document.getElementById('formAvailabilityDescription');
+  const messageField = document.getElementById('formClosedMessage');
+
+  toggle.checked = enabled;
+  messageField.value = status.message || '';
+
+  badge.textContent = enabled ? 'Open' : 'Closed';
+  badge.className = `form-availability-badge ${enabled ? 'open' : 'closed'}`;
+
+  title.textContent = enabled
+    ? 'The request form is accepting submissions.'
+    : 'The request form is temporarily closed.';
+
+  description.textContent = enabled
+    ? 'Users can open and submit the public OSC Request Form.'
+    : 'Visitors will see the closed notice instead of the request fields.';
+}
+
+function setFormAvailabilityLoading(isLoading) {
+  const toggle = document.getElementById('formAvailabilityToggle');
+  const messageField = document.getElementById('formClosedMessage');
+  const saveButton = document.getElementById('saveFormAvailabilityBtn');
+  const badge = document.getElementById('formAvailabilityBadge');
+
+  if (isLoading) {
+    toggle.disabled = true;
+    messageField.disabled = true;
+    saveButton.disabled = true;
+    badge.textContent = 'Checking';
+    badge.className = 'form-availability-badge loading';
+    return;
+  }
+
+  if (!formStatusSaving) {
+    toggle.disabled = false;
+    messageField.disabled = false;
+    saveButton.disabled = false;
+  }
+}
+
+function setFormAvailabilityFeedback(message, type) {
+  const feedback = document.getElementById('formAvailabilityFeedback');
+  feedback.textContent = message;
+  feedback.className = type || '';
+}
+
+/****************************************************
  * ADMIN SUMMARY
  ****************************************************/
 
@@ -663,6 +806,10 @@ function openAdminSummary() {
 
   if (adminSummaryDirty) {
     renderAdminSummary();
+  }
+
+  if (!formStatusLoaded) {
+    loadFormAvailability();
   }
 
   panel.classList.add('open');
