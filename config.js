@@ -4,7 +4,7 @@
  ****************************************************/
 
 window.OSC_DASHBOARD_CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbx95aSPGw_UHjT6zgXaJ515rG4Su4l4gjAuZl0qkf3keOBop7AmRdTtcphkbjMpVa2iiA/exec',
 
   APP_VERSION: 'v1.3.7-final',
 
