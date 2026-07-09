@@ -7,7 +7,7 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.6';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.7';
 const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
 const CHANGELOG = Array.isArray(DASHBOARD_CONFIG.CHANGELOG)
   ? DASHBOARD_CONFIG.CHANGELOG
@@ -33,6 +33,9 @@ const DETAIL_FIELDS = [
   'Last Name',
   'First Name',
   'Office',
+  'Requester Type',
+  'Adviser Name',
+  'Adviser Email',
   'Request Type',
   'Purpose',
   'Activity Proposal Title',
@@ -258,6 +261,12 @@ function renderNewRequestsPanel() {
     .join('');
 }
 
+function isStudentRequest(request) {
+  return String(request && request['Requester Type'] || '')
+    .trim()
+    .toLowerCase() === 'student';
+}
+
 function createRequestRow(request, buttonLabel = 'View / Edit') {
   const trackingNumber = valueOrDash(request['Tracking Number']);
   const title = valueOrDash(getRequestTitle(request));
@@ -270,9 +279,13 @@ function createRequestRow(request, buttonLabel = 'View / Edit') {
 
   const isOverdue = request.isOverdue;
   const assignedClass = assigned === 'Unassigned' ? 'assigned-empty' : 'assigned-text';
+  const studentRowClass = isStudentRequest(request) ? 'student-request-row' : '';
+  const studentMeta = isStudentRequest(request)
+    ? '<div class="request-meta student-request-meta">Student Request</div>'
+    : '';
 
   return `
-    <tr>
+    <tr class="${studentRowClass}">
       <td>
         <span class="tracking-text">${escapeHtml(trackingNumber)}</span>
       </td>
@@ -280,6 +293,7 @@ function createRequestRow(request, buttonLabel = 'View / Edit') {
       <td>
         <div class="request-title">${escapeHtml(title)}</div>
         <div class="request-meta">${escapeHtml(requester)}</div>
+        ${studentMeta}
       </td>
 
       <td>${escapeHtml(office)}</td>
@@ -350,6 +364,9 @@ function applySearchFilter(requests) {
       request['Request'],
       request['Description'],
       request['Office'],
+      request['Requester Type'],
+      request['Adviser Name'],
+      request['Adviser Email'],
       request['Request Type'],
       request['Date Needed'],
       request['Status'],

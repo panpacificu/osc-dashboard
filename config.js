@@ -4,13 +4,24 @@
  ****************************************************/
 
 window.OSC_DASHBOARD_CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbx95aSPGw_UHjT6zgXaJ515rG4Su4l4gjAuZl0qkf3keOBop7AmRdTtcphkbjMpVa2iiA/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec',
 
-  APP_VERSION: 'v1.3.6',
+  APP_VERSION: 'v1.3.7',
 
-  LAST_UPDATED: 'June 22, 2026',
+  LAST_UPDATED: 'July 09, 2026',
 
   CHANGELOG: [
+    {
+      version: 'v1.3.7',
+      date: 'July 09, 2026',
+      title: 'Student Row Highlight Hotfix',
+      changes: [
+        'Added subtle green row highlighting for requests marked as Student.',
+        'Added a Student Request label below the requester name.',
+        'Added Requester Type, Adviser Name, and Adviser Email to dashboard search/detail support when present in the sheet.',
+        'Included the mobile entry modal CSS hotfix as an extra file for the Request Form.'
+      ]
+    },
     {
       version: 'v1.3.6',
       date: 'June 22, 2026',
