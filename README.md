@@ -1,4 +1,4 @@
-# OSC Dashboard Latest Package v1.3.7-fixed
+# OSC Dashboard Latest Package v1.3.7-final
 
 This package contains the latest OSC Dashboard frontend files plus the current Dashboard Apps Script backend.
 
@@ -56,14 +56,23 @@ For Apps Script backend changes:
 
 ## Current versions
 
-- Dashboard frontend package: v1.3.7-fixed
+- Dashboard frontend package: v1.3.7-final
 - Dashboard backend: v1.3.7
 - Tracker backend remains separate.
 - Request Form backend remains separate.
 
 
-## v1.3.7-fixed note
+## v1.3.7-final note
 
 This fixed package corrects `config.js` so the Dashboard uses the Dashboard Apps Script `/exec` URL.
 
 The previous v1.3.7 ZIP may show errors because its `config.js` pointed to the Form backend URL.
+
+
+## v1.3.7-final note
+
+This package corrects the Dashboard `config.js` to use the verified Dashboard backend URL:
+
+`AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA`
+
+The previous fixed package used the Form backend URL by mistake.

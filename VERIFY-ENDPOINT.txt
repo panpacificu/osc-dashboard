@@ -2,17 +2,26 @@
 
 This dashboard package uses this Dashboard Apps Script URL in config.js:
 
-https://script.google.com/macros/s/AKfycbx1zQFBhYR2FWf9oqDM7-Vs0ElDmiu1WhZe0zI_LqXm5x0qkkqvrnyHVFCs11JB9ukdOA/exec
+https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec
 
-Quick test:
+Quick tests:
 
-Open this in a browser:
+1. Open this in a browser:
 
-https://script.google.com/macros/s/AKfycbx1zQFBhYR2FWf9oqDM7-Vs0ElDmiu1WhZe0zI_LqXm5x0qkkqvrnyHVFCs11JB9ukdOA/exec?action=getRequests
+https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec?action=getFormStatus
 
-It should return dashboard request data with:
-- success: true
-- headers
-- requests
+It should return:
+success: true
+enabled: true or false
+message: ...
 
-If it returns "Invalid API action" or "Invalid POST action", the URL is not the Dashboard backend.
+2. Open this in a browser:
+
+https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec?action=getRequests
+
+It should return:
+success: true
+headers: [...]
+requests: [...]
+
+If either returns "Invalid API action", then the URL is still not the Dashboard backend.
