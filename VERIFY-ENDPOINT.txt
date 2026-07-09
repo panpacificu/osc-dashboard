@@ -1,0 +1,18 @@
+# Endpoint Verification
+
+This dashboard package uses this Dashboard Apps Script URL in config.js:
+
+https://script.google.com/macros/s/AKfycbx1zQFBhYR2FWf9oqDM7-Vs0ElDmiu1WhZe0zI_LqXm5x0qkkqvrnyHVFCs11JB9ukdOA/exec
+
+Quick test:
+
+Open this in a browser:
+
+https://script.google.com/macros/s/AKfycbx1zQFBhYR2FWf9oqDM7-Vs0ElDmiu1WhZe0zI_LqXm5x0qkkqvrnyHVFCs11JB9ukdOA/exec?action=getRequests
+
+It should return dashboard request data with:
+- success: true
+- headers
+- requests
+
+If it returns "Invalid API action" or "Invalid POST action", the URL is not the Dashboard backend.

@@ -4,13 +4,22 @@
  ****************************************************/
 
 window.OSC_DASHBOARD_CONFIG = {
-  API_URL: 'https://script.google.com/macros/s/AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA/exec',
+  API_URL: 'https://script.google.com/macros/s/AKfycbx1zQFBhYR2FWf9oqDM7-Vs0ElDmiu1WhZe0zI_LqXm5x0qkkqvrnyHVFCs11JB9ukdOA/exec',
 
-  APP_VERSION: 'v1.3.7',
+  APP_VERSION: 'v1.3.7-fixed',
 
-  LAST_UPDATED: 'July 09, 2026',
+  LAST_UPDATED: 'July 09, 2026 - Fixed Dashboard API URL',
 
   CHANGELOG: [
+    {
+      version: 'v1.3.7-fixed',
+      date: 'July 09, 2026',
+      title: 'Dashboard API URL Fix',
+      changes: [
+        'Corrected config.js so the Dashboard points to the Dashboard backend, not the Form backend.',
+        'Kept the green Student row highlight update.'
+      ]
+    },
     {
       version: 'v1.3.7',
       date: 'July 09, 2026',
