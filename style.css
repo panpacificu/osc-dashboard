@@ -1413,3 +1413,350 @@ tbody tr.student-request-row .tracking-text {
   text-transform: uppercase;
 }
 
+
+/****************************************************
+ * v1.3.9 Compact UI refinements
+ ****************************************************/
+
+:root {
+  --radius: 18px;
+  --radius-sm: 12px;
+  --shadow: 0 6px 18px rgba(25, 39, 68, 0.055);
+}
+
+body {
+  padding: 22px 14px;
+  font-size: 14px;
+}
+
+.app-shell {
+  max-width: 1240px;
+}
+
+.dashboard-header {
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  gap: 18px;
+}
+
+.eyebrow {
+  font-size: 0.68rem;
+  margin-bottom: 6px;
+}
+
+.dashboard-header h1 {
+  font-size: clamp(1.48rem, 3vw, 2.15rem);
+  margin-bottom: 7px;
+}
+
+.header-description {
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.summary-grid {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.summary-card {
+  padding: 16px 17px;
+}
+
+.summary-label {
+  font-size: 0.68rem;
+  margin-bottom: 7px;
+}
+
+.summary-card strong {
+  font-size: 1.78rem;
+  margin-bottom: 5px;
+}
+
+.summary-card p {
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.dashboard-card,
+.new-requests-panel {
+  padding: 20px;
+}
+
+.panel-heading {
+  margin-bottom: 14px;
+}
+
+.panel-heading h2,
+.view-heading h2 {
+  font-size: 1.12rem;
+}
+
+.panel-heading p,
+.view-heading p {
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.toolbar {
+  padding: 14px;
+  gap: 12px;
+}
+
+.search-filter,
+.toolbar input,
+.toolbar select {
+  font-size: 0.82rem;
+}
+
+.tabs {
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.tab-btn {
+  min-height: 36px;
+  padding: 0 13px;
+  font-size: 0.76rem;
+}
+
+table {
+  font-size: 0.8rem;
+}
+
+th,
+td {
+  padding: 11px 12px;
+}
+
+.compact-table td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.sort-btn {
+  font-size: 0.68rem;
+}
+
+.tracking-text {
+  font-size: 0.78rem;
+}
+
+.request-title {
+  font-size: 0.83rem;
+}
+
+.request-meta {
+  font-size: 0.72rem;
+}
+
+.badge {
+  padding: 5px 8px;
+  font-size: 0.66rem;
+}
+
+.table-btn {
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 0.72rem;
+}
+
+.modal-card {
+  max-width: 980px;
+}
+
+.modal-header {
+  padding: 20px 22px;
+}
+
+.modal-header h2 {
+  font-size: 1.2rem;
+}
+
+.modal-body {
+  padding: 18px 22px;
+  gap: 16px;
+}
+
+.modal-section {
+  padding: 16px;
+}
+
+.modal-section h3 {
+  font-size: 0.98rem;
+}
+
+.edit-grid,
+.details-grid {
+  gap: 12px;
+}
+
+.field label,
+.detail-label {
+  font-size: 0.68rem;
+}
+
+.field input,
+.field select,
+.field textarea {
+  min-height: 39px;
+  font-size: 0.82rem;
+}
+
+.detail-item {
+  padding: 12px;
+}
+
+.detail-value {
+  font-size: 0.82rem;
+}
+
+.modal-footer {
+  padding: 16px 22px;
+}
+
+.admin-summary-drawer,
+.changelog-drawer {
+  width: min(390px, calc(100vw - 22px));
+}
+
+.admin-summary-header,
+.changelog-header {
+  padding: 20px;
+}
+
+.admin-summary-header h2,
+.changelog-header h2 {
+  font-size: 1.18rem;
+}
+
+.admin-summary-body,
+.changelog-body {
+  padding: 18px;
+  gap: 14px;
+}
+
+.admin-summary-section {
+  padding: 15px;
+}
+
+/****************************************************
+ * v1.3.9 Archive / Hide Requests
+ ****************************************************/
+
+.management-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.archive-btn {
+  min-height: 42px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  background: #eef2f7;
+  color: #4a5568;
+  font-size: 0.8rem;
+  font-weight: 800;
+  transition: var(--transition);
+}
+
+.archive-btn:hover {
+  background: #e2e8f0;
+  color: #263f77;
+}
+
+.archive-btn.restore-mode {
+  background: #eff8ea;
+  color: var(--brand-green);
+}
+
+.archive-btn.restore-mode:hover {
+  background: #e3f3dc;
+}
+
+.archive-shortcut-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid #dfe6ee;
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.archive-shortcut-card h3 {
+  margin-bottom: 4px;
+}
+
+.archive-shortcut-card p {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.archive-shortcut-btn {
+  min-height: 36px;
+  border: 0;
+  border-radius: 999px;
+  padding: 0 13px;
+  background: var(--brand-blue);
+  color: #ffffff;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.archive-shortcut-btn:hover {
+  background: var(--brand-blue-hover);
+}
+
+tbody tr.archived-request-row td {
+  background: #f8fafc;
+  color: #68788d;
+}
+
+tbody tr.archived-request-row td:first-child {
+  box-shadow: inset 5px 0 0 #94a3b8;
+}
+
+tbody tr.archived-request-row .tracking-text {
+  color: #64748b;
+}
+
+@media (max-width: 760px) {
+  body {
+    padding: 14px 10px;
+  }
+
+  .dashboard-header,
+  .dashboard-card,
+  .new-requests-panel {
+    padding: 16px;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .management-action-buttons {
+    width: 100%;
+  }
+
+  .management-action-buttons button {
+    flex: 1;
+  }
+
+  .archive-shortcut-card {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .archive-shortcut-btn {
+    width: 100%;
+  }
+}
+

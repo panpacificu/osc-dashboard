@@ -1,78 +1,94 @@
-# OSC Dashboard Latest Package v1.3.7-final
+# OSC Dashboard v1.3.9 — Compact UI + Archive Requests
 
-This package contains the latest OSC Dashboard frontend files plus the current Dashboard Apps Script backend.
+This update adds a more compact Dashboard interface and a new Archive / Restore request workflow.
 
-## Replace these files in the OSC Dashboard GitHub repository
+## Included replacement files
+
+Replace these files in the OSC Dashboard GitHub repository:
 
 - `index.html`
-- `style.css`
 - `script.js`
-- `config.js`
-- `README.md`
+- `style.css`
 
-## Apps Script backend
+Keep your current working `config.js`.
 
-The current Dashboard backend is included here:
+A sample config is included only as:
+
+- `config.sample.js`
+
+Do not overwrite your existing `config.js` unless you manually copy your current verified Dashboard Apps Script URL into it first.
+
+## Apps Script update required
+
+This feature requires a Dashboard Apps Script backend update because archive status must be saved to the Google Sheet.
+
+Replace your Dashboard Apps Script code with:
 
 - `apps-script/Dashboard.gs`
 
-Use it only if you need to restore or update the Dashboard Apps Script project.
+Before deploying, make sure your current values are preserved:
 
-## Included dashboard update
+```javascript
+SPREADSHEET_ID: 'YOUR_CURRENT_SPREADSHEET_ID',
+SHEET_NAME: 'Form Responses'
+```
 
-### Student row highlight
+Then run:
 
-Rows will automatically turn subtly green when the spreadsheet contains:
+1. `testDashboardConnection`
+2. `authorizeDashboardPermissions`
+
+Deploy by updating the existing Dashboard Web App deployment:
+
+1. Deploy
+2. Manage deployments
+3. Select the current Dashboard deployment
+4. Edit
+5. Version: New version
+6. Deploy
+
+Do not create a new Web App URL.
+
+## New archive workflow
+
+- Open any request.
+- Click `Archive Request`.
+- The request is hidden from Open, All, Completed, and Unassigned views.
+- Open Admin Statistics.
+- Click `Show Archived`.
+- Open an archived request and click `Restore Request`.
+
+The backend automatically creates a new spreadsheet column named:
+
+`Archived`
+
+Archived requests use:
+
+`Archived = Yes`
+
+Restored requests clear the `Archived` value.
+
+## Compact UI changes
+
+- Smaller header typography.
+- Tighter summary cards.
+- Denser tables.
+- Smaller badges and action buttons.
+- More compact modal and admin side drawer.
+
+## Student row highlight
+
+The previous Student row highlight remains active when:
 
 `Requester Type = Student`
 
-Older rows will highlight after refresh if that column already contains `Student`.
+## Test checklist
 
-The update also adds a small `Student Request` label under the requester name.
-
-## Extra file
-
-The request form mobile modal hotfix is included as an extra:
-
-- `extras/request-form-mobile-modal-hotfix.css`
-
-This is not a dashboard file. Append it to the bottom of the Request Form repository's `style.css` only if needed.
-
-## Deployment notes
-
-For dashboard frontend changes:
-
-1. Replace the GitHub files.
-2. Commit.
-3. Wait for GitHub Pages to publish.
-4. Hard refresh with Ctrl + F5.
-
-For Apps Script backend changes:
-
-1. Replace the Dashboard Apps Script code with `apps-script/Dashboard.gs`.
-2. Run `testDashboardConnection`.
-3. Update the existing deployment to a New version.
-4. Keep the same `/exec` URL.
-
-## Current versions
-
-- Dashboard frontend package: v1.3.7-final
-- Dashboard backend: v1.3.7
-- Tracker backend remains separate.
-- Request Form backend remains separate.
-
-
-## v1.3.7-final note
-
-This fixed package corrects `config.js` so the Dashboard uses the Dashboard Apps Script `/exec` URL.
-
-The previous v1.3.7 ZIP may show errors because its `config.js` pointed to the Form backend URL.
-
-
-## v1.3.7-final note
-
-This package corrects the Dashboard `config.js` to use the verified Dashboard backend URL:
-
-`AKfycbzsgRXSWTLEwgRNE-hlIBBxGlQOaWCcLDu7MjX9EjbD34anGmt-OqH7nx7Ms9AQKWnOPA`
-
-The previous fixed package used the Form backend URL by mistake.
+1. Dashboard still loads requests.
+2. Open/assign still sends email and webhook.
+3. Mark completed still sends email and webhook.
+4. Archive a test request.
+5. Confirm it disappears from normal views.
+6. Admin Statistics → Show Archived.
+7. Restore the test request.
+8. Confirm it reappears in normal views.

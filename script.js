@@ -7,7 +7,7 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.7-final';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.9';
 const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
 const CHANGELOG = Array.isArray(DASHBOARD_CONFIG.CHANGELOG)
   ? DASHBOARD_CONFIG.CHANGELOG
@@ -65,7 +65,8 @@ const DETAIL_FIELDS = [
   'Assigned',
   'Project Link',
   'Notes',
-  'Completion Date'
+  'Completion Date',
+  'Archived'
 ];
 
 const EDITABLE_FIELDS = {
@@ -109,6 +110,7 @@ function bindEvents() {
   document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
   document.getElementById('saveChangesBtn').addEventListener('click', handleSaveChanges);
   document.getElementById('markCompletedBtn').addEventListener('click', handleMarkCompleted);
+  document.getElementById('archiveRequestBtn').addEventListener('click', handleArchiveToggle);
 
   document.getElementById('floatingRefreshBtn').addEventListener('click', refreshDashboard);
 
@@ -116,6 +118,7 @@ function bindEvents() {
   document.getElementById('adminSummaryClose').addEventListener('click', closeAdminSummary);
   document.getElementById('adminDrawerOverlay').addEventListener('click', closeAdminSummary);
 
+  document.getElementById('showArchivedRequestsBtn').addEventListener('click', showArchivedRequests);
   document.getElementById('formAvailabilityToggle').addEventListener('change', handleFormAvailabilityToggle);
   document.getElementById('saveFormAvailabilityBtn').addEventListener('click', () => saveFormAvailability(false));
 
@@ -166,6 +169,7 @@ function refreshDashboard() {
 function normalizeLoadedRequests(requests) {
   return requests.map((item) => {
     item.requestDisplayTitle = getRequestTitle(item);
+    item.isArchived = isArchivedRequest(item);
     return item;
   });
 }
@@ -201,11 +205,16 @@ function updateViewHeader() {
     unassigned: {
       title: 'Unassigned Requests',
       subtitle: 'Requests that are not yet assigned or not yet opened.'
+    },
+    archived: {
+      title: 'Archived Requests',
+      subtitle: 'Requests hidden from the normal dashboard views.'
     }
   };
 
-  title.textContent = viewMap[currentView].title;
-  subtitle.textContent = viewMap[currentView].subtitle;
+  const viewInfo = viewMap[currentView] || viewMap.open;
+  title.textContent = viewInfo.title;
+  subtitle.textContent = viewInfo.subtitle;
 }
 
 function renderCurrentView() {
@@ -221,8 +230,12 @@ function renderCurrentView() {
     return;
   }
 
+  const actionLabel = currentView === 'archived'
+    ? 'View / Restore'
+    : 'View / Edit';
+
   document.getElementById('requestTableBody').innerHTML = requests
-    .map((request) => createRequestRow(request, 'View / Edit'))
+    .map((request) => createRequestRow(request, actionLabel))
     .join('');
 }
 
@@ -234,7 +247,7 @@ function renderNewRequestsPanel() {
   if (!panel || !countEl || !tbody) return;
 
   const newRequests = allRequests
-    .filter((item) => item.isUnassigned)
+    .filter((item) => item.isUnassigned && !item.isArchived)
     .sort((a, b) => {
       const dateA = new Date(a['Timestamp']).getTime();
       const dateB = new Date(b['Timestamp']).getTime();
@@ -267,6 +280,19 @@ function isStudentRequest(request) {
     .toLowerCase() === 'student';
 }
 
+function isArchivedRequest(request) {
+  const archived = String(request && request['Archived'] || '')
+    .trim()
+    .toLowerCase();
+
+  return (
+    archived === 'yes' ||
+    archived === 'true' ||
+    archived === 'archived' ||
+    archived === 'hidden'
+  );
+}
+
 function createRequestRow(request, buttonLabel = 'View / Edit') {
   const trackingNumber = valueOrDash(request['Tracking Number']);
   const title = valueOrDash(getRequestTitle(request));
@@ -280,12 +306,13 @@ function createRequestRow(request, buttonLabel = 'View / Edit') {
   const isOverdue = request.isOverdue;
   const assignedClass = assigned === 'Unassigned' ? 'assigned-empty' : 'assigned-text';
   const studentRowClass = isStudentRequest(request) ? 'student-request-row' : '';
+  const archivedRowClass = isArchivedRequest(request) ? 'archived-request-row' : '';
   const studentMeta = isStudentRequest(request)
     ? '<div class="request-meta student-request-meta">Student Request</div>'
     : '';
 
   return `
-    <tr class="${studentRowClass}">
+    <tr class="${studentRowClass} ${archivedRowClass}">
       <td>
         <span class="tracking-text">${escapeHtml(trackingNumber)}</span>
       </td>
@@ -334,19 +361,25 @@ function getRequestTitle(request) {
 }
 
 function getRequestsForCurrentView() {
+  const activeRequests = allRequests.filter((item) => !item.isArchived);
+  const archivedRequests = allRequests.filter((item) => item.isArchived);
+
   switch (currentView) {
     case 'open':
-      return allRequests.filter((item) => item.isOpen);
+      return activeRequests.filter((item) => item.isOpen);
 
     case 'completed':
-      return allRequests.filter((item) => item.isCompleted);
+      return activeRequests.filter((item) => item.isCompleted);
 
     case 'unassigned':
-      return allRequests.filter((item) => item.isUnassigned);
+      return activeRequests.filter((item) => item.isUnassigned);
+
+    case 'archived':
+      return archivedRequests;
 
     case 'all':
     default:
-      return [...allRequests];
+      return [...activeRequests];
   }
 }
 
@@ -374,7 +407,8 @@ function applySearchFilter(requests) {
       request['Email Address'],
       request.fullName,
       request['Remarks'],
-      request['Notes']
+      request['Notes'],
+      request['Archived']
     ].join(' ').toLowerCase();
 
     return searchableText.includes(query);
@@ -455,10 +489,12 @@ function updateSortIndicators() {
 }
 
 function updateSummaryCards() {
-  document.getElementById('totalCount').textContent = allRequests.length;
-  document.getElementById('openCount').textContent = allRequests.filter((item) => item.isOpen).length;
-  document.getElementById('completedCount').textContent = allRequests.filter((item) => item.isCompleted).length;
-  document.getElementById('unassignedCount').textContent = allRequests.filter((item) => item.isUnassigned).length;
+  const activeRequests = allRequests.filter((item) => !item.isArchived);
+
+  document.getElementById('totalCount').textContent = activeRequests.length;
+  document.getElementById('openCount').textContent = activeRequests.filter((item) => item.isOpen).length;
+  document.getElementById('completedCount').textContent = activeRequests.filter((item) => item.isCompleted).length;
+  document.getElementById('unassignedCount').textContent = activeRequests.filter((item) => item.isUnassigned).length;
 }
 
 function renderEmptyState(message) {
@@ -483,6 +519,7 @@ function openRequestModal(rowNumber) {
 
   populateEditFields(selectedRequest);
   populateDetailsGrid(selectedRequest);
+  updateArchiveActionButton(selectedRequest);
   clearModalMessage();
 
   const modal = document.getElementById('requestModal');
@@ -496,6 +533,20 @@ function closeModal() {
   modal.setAttribute('aria-hidden', 'true');
 
   selectedRequest = null;
+}
+
+function updateArchiveActionButton(request) {
+  const archiveButton = document.getElementById('archiveRequestBtn');
+
+  if (!archiveButton) return;
+
+  const isArchived = isArchivedRequest(request);
+
+  archiveButton.textContent = isArchived
+    ? 'Restore Request'
+    : 'Archive Request';
+
+  archiveButton.classList.toggle('restore-mode', isArchived);
 }
 
 function populateEditFields(request) {
@@ -575,6 +626,7 @@ function handleSaveChanges() {
       if (selectedRequest) {
         populateEditFields(selectedRequest);
         populateDetailsGrid(selectedRequest);
+        updateArchiveActionButton(selectedRequest);
       }
 
       renderCurrentView();
@@ -648,6 +700,7 @@ function handleMarkCompleted() {
       if (selectedRequest) {
         populateEditFields(selectedRequest);
         populateDetailsGrid(selectedRequest);
+        updateArchiveActionButton(selectedRequest);
       }
 
       renderCurrentView();
@@ -661,6 +714,68 @@ function handleMarkCompleted() {
       hideLoading();
     });
 }
+
+
+function handleArchiveToggle() {
+  if (!selectedRequest) {
+    showToast('No selected request.', 'error');
+    return;
+  }
+
+  const isArchived = isArchivedRequest(selectedRequest);
+  const action = isArchived ? 'unarchiveRequest' : 'archiveRequest';
+
+  const confirmed = window.confirm(
+    isArchived
+      ? 'Restore this archived request to the normal dashboard views?'
+      : 'Archive this request? It will be hidden from normal dashboard views but can still be restored from Admin Statistics.'
+  );
+
+  if (!confirmed) return;
+
+  showLoading(isArchived ? 'Restoring request...' : 'Archiving request...');
+  setModalMessage(isArchived ? 'Restoring request...' : 'Archiving request...', '');
+
+  callApi(action, {
+    rowNumber: selectedRequest.rowNumber
+  })
+    .then((response) => {
+      if (!response.success) {
+        throw new Error(response.message || 'Unable to update archive status.');
+      }
+
+      showToast(
+        isArchived
+          ? 'Request restored successfully.'
+          : 'Request archived successfully.',
+        'success'
+      );
+
+      return callApi('getRequests');
+    })
+    .then((response) => {
+      if (!response.success) {
+        throw new Error(response.message || 'Unable to reload requests.');
+      }
+
+      allRequests = normalizeLoadedRequests(response.requests || []);
+
+      adminSummaryDirty = true;
+      updateSummaryCards();
+      renderNewRequestsPanel();
+      closeModal();
+      renderCurrentView();
+    })
+    .catch((error) => {
+      console.error(error);
+      showToast(error.message || 'Unable to update archive status.', 'error');
+      setModalMessage(error.message || 'Unable to update archive status.', 'error');
+    })
+    .finally(() => {
+      hideLoading();
+    });
+}
+
 
 /****************************************************
  * REQUEST FORM AVAILABILITY
@@ -804,6 +919,12 @@ function setFormAvailabilityFeedback(message, type) {
  * ADMIN SUMMARY
  ****************************************************/
 
+
+function showArchivedRequests() {
+  closeAdminSummary();
+  switchView('archived');
+}
+
 function toggleAdminSummary() {
   const panel = document.getElementById('adminSummaryPanel');
 
@@ -853,21 +974,26 @@ function closeAdminSummary() {
 }
 
 function renderAdminSummary() {
+  const activeRequests = allRequests.filter((item) => !item.isArchived);
+
   renderOverviewStats();
-  renderTopList('adminCompletedByStaff', countByField(allRequests.filter((item) => item.isCompleted), 'Assigned'), 8);
-  renderTopList('adminRequestTypeStats', countByField(allRequests, 'Request Type'), 8);
-  renderTopList('adminOfficeStats', countByField(allRequests, 'Office'), 8);
-  renderTopList('adminOutputStats', countRequestedOutputs(allRequests), 10);
+  renderTopList('adminCompletedByStaff', countByField(activeRequests.filter((item) => item.isCompleted), 'Assigned'), 8);
+  renderTopList('adminRequestTypeStats', countByField(activeRequests, 'Request Type'), 8);
+  renderTopList('adminOfficeStats', countByField(activeRequests, 'Office'), 8);
+  renderTopList('adminOutputStats', countRequestedOutputs(activeRequests), 10);
   adminSummaryDirty = false;
 }
 
 function renderOverviewStats() {
+  const activeRequests = allRequests.filter((item) => !item.isArchived);
+
   const stats = [
-    { label: 'Total', value: allRequests.length },
-    { label: 'Open', value: allRequests.filter((item) => item.isOpen).length },
-    { label: 'Completed', value: allRequests.filter((item) => item.isCompleted).length },
-    { label: 'Unassigned', value: allRequests.filter((item) => item.isUnassigned).length },
-    { label: 'Overdue', value: allRequests.filter((item) => item.isOverdue).length }
+    { label: 'Total', value: activeRequests.length },
+    { label: 'Open', value: activeRequests.filter((item) => item.isOpen).length },
+    { label: 'Completed', value: activeRequests.filter((item) => item.isCompleted).length },
+    { label: 'Unassigned', value: activeRequests.filter((item) => item.isUnassigned).length },
+    { label: 'Overdue', value: activeRequests.filter((item) => item.isOverdue).length },
+    { label: 'Archived', value: allRequests.filter((item) => item.isArchived).length }
   ];
 
   document.getElementById('adminOverviewStats').innerHTML = stats.map((stat) => `

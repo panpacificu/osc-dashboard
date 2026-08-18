@@ -249,9 +249,15 @@
             </p>
           </div>
 
-          <button class="complete-btn" id="markCompletedBtn" type="button">
-            Mark as Completed
-          </button>
+          <div class="management-action-buttons">
+            <button class="archive-btn" id="archiveRequestBtn" type="button">
+              Archive Request
+            </button>
+
+            <button class="complete-btn" id="markCompletedBtn" type="button">
+              Mark as Completed
+            </button>
+          </div>
         </section>
 
         <section class="modal-section">
@@ -434,6 +440,19 @@
     </div>
 
     <div class="admin-summary-body">
+      <section class="admin-summary-section archive-shortcut-section">
+        <div class="archive-shortcut-card">
+          <div>
+            <h3>Archived Requests</h3>
+            <p>View requests hidden from the main dashboard tables.</p>
+          </div>
+
+          <button id="showArchivedRequestsBtn" class="archive-shortcut-btn" type="button">
+            Show Archived
+          </button>
+        </div>
+      </section>
+
       <section class="admin-summary-section form-availability-section">
         <div class="form-availability-heading">
           <div>
