@@ -1,0 +1,17 @@
+OSC DASHBOARD v1.6.1 — FIRST INSTALL CHECKLIST
+
+[ ] Backup current Dashboard.gs and live monitoring Sheet
+[ ] Set CONFIG.SPREADSHEET_ID to actual MCR request Sheet ID
+[ ] Confirm CONFIG.SHEET_NAME is the exact MCR tab name
+[ ] Preserve OSC_CHAT_WEBHOOK_URL and OSC_INTERN_LINK_PIN
+[ ] Add OSC_POST_IMPORT_PIN (different from intern PIN)
+[ ] Run testDashboardConnection and testMonitoringConnection
+[ ] Update EXISTING Dashboard Web App deployment to New version
+[ ] Check ?action=getRequests and ?action=getFormStatus on Dashboard /exec
+[ ] Verify config.js API_URL against THAT deployment
+[ ] Upload all frontend files to GitHub repo ROOT
+[ ] Test dashboard, statistics, SDG Explorer, and intern desk
+[ ] Preview October Meta CSV: Publish time / Title / Permalink
+[ ] Test one or two genuinely new posts before full-month import
+[ ] Check existing posts for different URL variants to avoid duplicates
+[ ] Do not touch the separate Request Form or Tracker Apps Script projects
