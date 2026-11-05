@@ -1,4 +1,4 @@
-/* OSC Published Post SDG Tagging Desk v1.6.3.
+/* OSC Published Post SDG Tagging Desk v1.6.3.1.
  * Public Facebook embeds are best-effort; title/SDG/core-value changes are saved to the existing monitoring Sheet.
  */
 (()=>{'use strict';
@@ -112,6 +112,11 @@ function cardMarkup(row){
  </section></div>`;
 }
 function syncControls(){
+ // Navigation buttons are outside the dynamically rendered post card.
+ // Always sync them here, including after an async Save / Move to End finishes.
+ const disabled=!queue.length||busy;
+ $('previousBtn').disabled=disabled;
+ $('skipBtn').disabled=disabled;
  const row=queue[index];if(!row)return;
  const choice=choicesFor(row),el=$('postCard');
  el.querySelectorAll('[data-goal]').forEach(b=>b.setAttribute('aria-pressed',String(choice.sdgs.includes(Number(b.dataset.goal)))));
@@ -126,8 +131,6 @@ function syncControls(){
 function renderCard(){
  $('postCard').innerHTML=cardMarkup(queue[index]);
  syncControls();
- $('previousBtn').disabled=!queue.length||busy;
- $('skipBtn').disabled=!queue.length||busy;
 }
 function renderTable(){
  const q=trim($('search').value).toLowerCase();

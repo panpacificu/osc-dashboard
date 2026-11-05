@@ -6,11 +6,12 @@
 window.OSC_DASHBOARD_CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbx95aSPGw_UHjT6zgXaJ515rG4Su4l4gjAuZl0qkf3keOBop7AmRdTtcphkbjMpVa2iiA/exec',
 
-  APP_VERSION: 'v1.6.3',
+  APP_VERSION: 'v1.6.3.1',
 
-  LAST_UPDATED: 'November 5, 2026 — Persistent Tagging Queue and Post Database',
+  LAST_UPDATED: 'November 5, 2026 — Tagging Desk Navigation Hotfix',
 
   CHANGELOG: [
+    {version:'v1.6.3.1',date:'November 5, 2026',title:'Tagging Desk Button Hotfix',changes:['Fixed Previous and Move to End becoming disabled after saving or deferring a post.','Restored navigation immediately after the automatic queue refresh completes.','No backend or Google Sheet change required.']},
     {version:'v1.6.3',date:'November 5, 2026',title:'Persistent Tagging Queue & Facebook Post Database',changes:['Replaced temporary Skip with persistent Move to End for untagged posts.','Auto-refreshes the tagging queue after saving and moving items.','Added read-only searchable Facebook Post Database with embeds, dates, SDGs, and Core Values.','Paused the old request-based Intern Post Desk navigation.']},
     {version:'v1.6.2',date:'November 5, 2026',title:'Interactive SDG Tagging & Facebook Preview',changes:['Embedded public Facebook posts in the intern Tagging Desk, with a fallback to the original post.','Added colorful illustrated SDG selection tiles and always-visible Core Values.','Enabled post-title editing, with confirmation after saving title, SDGs, and Core Values to the monitoring Sheet.']},
     {version:'v1.6.1',date:'November 5, 2026',title:'Meta CSV Compatibility',changes:['Recognizes Meta Publish time, Title, and Permalink fields automatically.','Previews October posts using the actual publish date instead of the Lifetime insights column.','Summarizes long Meta captions and imports in short batches.']},
