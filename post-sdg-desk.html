@@ -1,5 +1,54 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>SDG Tagging Desk · OSC Interns</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="post-monitoring.css"></head><body><div class="layout"><header class="head"><div class="head-copy"><small>PANPACIFIC UNIVERSITY · INTERN WORKSPACE</small><h1>SDG Tagging Desk</h1><p class="sub">One published Facebook post at a time. Choose its Sustainable Development Goals and save.</p></div><span class="pill">INTERN VIEW</span></header>
-<section class="panel gate" id="gate"><h2>Ready to tag posts?</h2><p class="muted">Enter your existing OSC intern access code to load untagged posts from the monitoring Sheet.</p><form id="login"><div class="field"><label for="pin">Access code</label><input id="pin" type="password" required autocomplete="off" placeholder="Enter intern code"></div><div class="actions"><button type="submit" class="primary" id="loginBtn">Open tagging desk →</button></div></form><p class="message" id="gateStatus" role="status"></p></section>
-<section id="desk" hidden><div class="desk-header"><div><p class="kicker">UNASSIGNED SDGS</p><h2>Tag what's published.</h2><p class="sub">A saved post leaves the queue. Previously tagged posts are not overwritten.</p></div><div class="desk-status"><span id="pendingCount" class="pill">0 pending</span><button class="secondary" id="refreshBtn" type="button">Refresh</button><div class="desk-tabs"><button id="cardMode" class="active" type="button" aria-pressed="true">Cards</button><button id="tableMode" type="button" aria-pressed="false">Table</button></div></div></div>
-<p class="message" id="status" role="status"></p><section id="cardArea"><article id="postCard" class="desk-card" tabindex="0"></article><div class="desk-actions"><button type="button" class="secondary" id="previousBtn">← Previous</button><button type="button" class="secondary" id="skipBtn">Skip →</button></div><p class="muted" style="text-align:center">Swipe left to skip · Swipe right to save selected SDGs</p></section><section id="tableArea" class="panel" hidden><div class="field"><label for="search">Find a post</label><input id="search" type="search" placeholder="Search by date or post title"></div><div class="table-scroll"><table><thead><tr><th>Date</th><th>Post title</th><th>Facebook link</th><th></th></tr></thead><tbody id="tableBody"></tbody></table></div></section></section>
-<footer><span>Office of Strategic Communications · Panpacific University</span><span>SDG Desk v1.6.0</span></footer></div><script src="config.js"></script><script src="post-sdg-desk.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SDG Tagging Desk · OSC Interns</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="post-monitoring.css">
+  <link rel="stylesheet" href="post-sdg-desk.css">
+</head>
+<body>
+  <div class="layout">
+    <header class="head">
+      <div class="head-copy">
+        <small>PANPACIFIC UNIVERSITY · INTERN WORKSPACE</small>
+        <h1>SDG Tagging Desk <span class="sparkle" aria-hidden="true">✦</span></h1>
+        <p class="sub">Preview. Rename. Tag. Save. One published post at a time.</p>
+      </div>
+      <span class="pill">INTERN VIEW</span>
+    </header>
+    <section class="panel gate" id="gate">
+      <div class="gate-icon" aria-hidden="true">✦</div>
+      <h2>Ready to make an impact?</h2>
+      <p class="muted">Enter your OSC intern access code to load the posts that still need SDG tags.</p>
+      <form id="login">
+        <div class="field"><label for="pin">Access code</label><input id="pin" type="password" required autocomplete="off" placeholder="Enter intern code"></div>
+        <div class="actions"><button type="submit" class="primary" id="loginBtn">Open tagging desk →</button></div>
+      </form>
+      <p class="message" id="gateStatus" role="status" aria-live="polite"></p>
+    </section>
+    <section id="desk" hidden>
+      <div class="desk-header">
+        <div><p class="kicker">PUBLISHED POSTS</p><h2>Tag what's published.</h2><p class="sub">Pick SDGs and Core Values; update the title if needed. Saved posts leave the queue.</p></div>
+        <div class="desk-status"><span id="pendingCount" class="pill">0 pending</span><button class="secondary" id="refreshBtn" type="button">Refresh</button><div class="desk-tabs"><button id="cardMode" class="active" type="button" aria-pressed="true">Cards</button><button id="tableMode" type="button" aria-pressed="false">Table</button></div></div>
+      </div>
+      <p class="message desk-feedback" id="status" role="status" aria-live="polite"></p>
+      <section id="cardArea">
+        <article id="postCard" class="desk-card" tabindex="0" aria-label="Current Facebook post and tagging controls"></article>
+        <div class="desk-actions"><button type="button" class="secondary" id="previousBtn">← Previous</button><button type="button" class="secondary" id="skipBtn">Skip →</button></div>
+        <p class="swipe-hint">Swipe left to skip · Swipe right to save when selections are ready</p>
+      </section>
+      <section id="tableArea" class="panel" hidden>
+        <div class="field"><label for="search">Find a post</label><input id="search" type="search" placeholder="Search by date or post title"></div>
+        <div class="table-scroll"><table><thead><tr><th>Date</th><th>Post title</th><th>Facebook link</th><th></th></tr></thead><tbody id="tableBody"></tbody></table></div>
+      </section>
+    </section>
+    <footer><span>Office of Strategic Communications · Panpacific University</span><span>SDG Desk v1.6.2</span></footer>
+  </div>
+  <div id="saveToast" class="save-toast" role="status" aria-live="polite" hidden></div>
+  <script src="config.js"></script><script src="post-sdg-desk.js"></script>
+</body>
+</html>

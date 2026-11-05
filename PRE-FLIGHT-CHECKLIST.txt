@@ -1,17 +1,11 @@
-OSC DASHBOARD v1.6.1 — FIRST INSTALL CHECKLIST
-
-[ ] Backup current Dashboard.gs and live monitoring Sheet
-[ ] Set CONFIG.SPREADSHEET_ID to actual MCR request Sheet ID
-[ ] Confirm CONFIG.SHEET_NAME is the exact MCR tab name
-[ ] Preserve OSC_CHAT_WEBHOOK_URL and OSC_INTERN_LINK_PIN
-[ ] Add OSC_POST_IMPORT_PIN (different from intern PIN)
-[ ] Run testDashboardConnection and testMonitoringConnection
-[ ] Update EXISTING Dashboard Web App deployment to New version
-[ ] Check ?action=getRequests and ?action=getFormStatus on Dashboard /exec
-[ ] Verify config.js API_URL against THAT deployment
-[ ] Upload all frontend files to GitHub repo ROOT
-[ ] Test dashboard, statistics, SDG Explorer, and intern desk
-[ ] Preview October Meta CSV: Publish time / Title / Permalink
-[ ] Test one or two genuinely new posts before full-month import
-[ ] Check existing posts for different URL variants to avoid duplicates
-[ ] Do not touch the separate Request Form or Tracker Apps Script projects
+OSC DASHBOARD v1.6.2 PRE-FLIGHT
+[ ] I backed up my current Dashboard.gs and config.js
+[ ] I backed up my Facebook Monitoring Sheet
+[ ] In Dashboard.gs, CONFIG.SPREADSHEET_ID is my ACTUAL MCR spreadsheet ID, not PASTE_YOUR_SPREADSHEET_ID_HERE
+[ ] MONITORING_CONFIG.SPREADSHEET_ID points to the Facebook monitoring sheet
+[ ] OSC_INTERN_LINK_PIN is saved in the Dashboard Apps Script properties
+[ ] I updated the EXISTING Dashboard Apps Script deployment (new version, same URL)
+[ ] My live config.js API_URL still matches the correct Dashboard /exec endpoint
+[ ] GitHub root has post-sdg-desk.html, .js, and NEW post-sdg-desk.css
+[ ] I checked the post preview, title rename, selected SDGs and Core Values on a test post
+[ ] I confirmed the saved title (C), SDGs (E-I), and Core Values (J-M) in Google Sheets

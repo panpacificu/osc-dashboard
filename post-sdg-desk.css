@@ -1,0 +1,53 @@
+/* Published Post SDG Tagging Desk • v1.6.2 */
+:root{--post-blue:#263f77;--post-ink:#192744}
+.sparkle{color:#EBAF19;font-size:.65em;vertical-align:middle}
+.gate{max-width:520px;text-align:left}.gate-icon{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:#eef4d8;color:#57852a;font-size:26px;margin-bottom:16px}.gate h2{font-size:23px}
+.desk-feedback{min-height:20px;margin:9px 0 0}
+.desk-card{max-width:1190px;margin:16px auto 12px;padding:0;overflow:hidden;border:1px solid #e3eaf2;border-radius:22px;touch-action:pan-y}
+.desk-card:focus{outline-color:#99bce7;outline-offset:4px}
+.tag-workspace{display:grid;grid-template-columns:minmax(315px,0.91fr) minmax(425px,1.09fr);gap:0}
+.facebook-pane{background:#f7f9fb;padding:22px 20px 24px;border-right:1px solid #e5ebf3;min-width:0}
+.tagging-pane{padding:23px 26px 25px;min-width:0}
+.pane-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+.post-count,.post-date{font-size:12px;font-weight:700;color:#6e7a90}
+.facebook-frame{display:flex;align-items:flex-start;justify-content:center;min-height:450px;border-radius:16px;overflow:hidden;background:white;border:1px solid #e1e5ed}
+.fb-post-frame{border:0;max-width:100%;width:500px;height:600px;background:#fff}
+.preview-unavailable{min-height:340px;display:grid;place-items:center;padding:25px;text-align:center;color:#60748f;font-size:13px}
+.preview-foot{display:flex;align-items:start;justify-content:space-between;gap:8px;margin:14px 2px 0;font-size:11px;line-height:1.5;color:#728199}
+.preview-foot span{max-width:63%}.preview-foot a{white-space:nowrap;font-size:11px;font-weight:800;text-decoration:none;color:#263f77}
+.edit-label{margin:4px 0 7px!important;font-size:12px!important;font-weight:800!important}.small-help{font-weight:650;color:#7e8c9d;margin-left:4px}
+.post-title-input{width:100%;background:#fff;border:1px solid #cdd7e4;border-radius:11px;padding:11px 13px;font-size:16px;font-weight:760;letter-spacing:-.02em;color:#1c2c47;min-height:48px}
+.post-title-input:focus{border-color:#6f9acc;outline:3px solid #deebff}
+.field-help{font-size:11px;color:#79869a;display:block;margin-top:7px;line-height:1.45}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:22px;margin-bottom:11px}
+.section-head h3{margin:0;font-size:14px;letter-spacing:-.02em}
+.selection-count{border-radius:99px;padding:5px 9px;background:#edf3f8;color:#52718e;font-size:11px;font-weight:800;white-space:nowrap}
+.sdg-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.sdg-tile{--goal:#263f77;position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:6px;text-align:left;background:#fff;border:1.5px solid color-mix(in srgb,var(--goal) 33%,#fff);color:#273650;border-radius:13px;min-height:105px;padding:11px 9px 9px;transition:transform .12s,border-color .12s,box-shadow .12s,background-color .12s}
+.sdg-tile:hover{transform:translateY(-2px);box-shadow:0 8px 16px #0d23401a;border-color:var(--goal)}
+.sdg-tile:focus-visible{outline:3px solid #6b91c6;outline-offset:2px}
+.sdg-tile[aria-pressed="true"]{background:var(--goal);color:#fff;border-color:var(--goal);box-shadow:0 7px 15px color-mix(in srgb,var(--goal) 22%,transparent)}
+.tile-num{font-size:21px;font-weight:800;line-height:1;letter-spacing:-.05em}
+.tile-icon{position:absolute;right:9px;top:8px;width:28px;height:28px;color:var(--goal);opacity:.95}
+.tile-icon svg{width:100%;height:100%}
+.sdg-tile[aria-pressed="true"] .tile-icon{color:white}
+.tile-label{font-size:10px;font-weight:750;line-height:1.2;letter-spacing:-.02em;max-width:95%}
+.tile-check{display:none;position:absolute;top:9px;right:8px;width:17px;height:17px;align-items:center;justify-content:center;border-radius:50%;background:#ffffff;color:var(--goal);font-size:12px;font-weight:900}
+.sdg-tile[aria-pressed="true"] .tile-check{display:flex}
+.sdg-tile[aria-pressed="true"] .tile-icon{right:25px;opacity:.78}
+.core-section-head{margin-top:25px}.core-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.core-tile{display:flex;min-height:56px;flex-direction:column;justify-content:center;align-items:center;position:relative;gap:3px;background:#f8f9fc;border:1.5px solid #dfe5ef;border-radius:12px;padding:8px 4px;font-weight:750;font-size:10px;color:#344760}
+.core-tile:hover{background:#eef3fa;border-color:#a8bed8}.core-tile[aria-pressed="true"]{background:#eaf3e4;border-color:#5b9444;color:#30652f}
+.core-symbol{font-size:19px;line-height:1}.core-check{display:none;position:absolute;right:5px;top:3px;font-size:10px}
+.core-tile[aria-pressed="true"] .core-check{display:block}
+.save-section{margin-top:20px;padding-top:14px;border-top:1px solid #e8ecf1}
+.save-section .field-help{margin:0 0 11px}
+.save-post-btn{width:100%;font-size:13px;min-height:46px;display:flex;justify-content:center;align-items:center;gap:12px;border-radius:11px}
+.swipe-hint{color:#8a95a6;text-align:center;font-size:11px;margin:9px 0}
+.all-done{padding:65px 22px;text-align:center}.done-icon{display:grid;place-items:center;margin:0 auto 14px;width:56px;height:56px;background:#e8f3e5;color:#2f7b45;border-radius:50%;font-size:31px;font-weight:800}
+.all-done h2{margin-bottom:8px}
+.save-toast{position:fixed;bottom:23px;right:23px;max-width:min(450px,calc(100vw - 36px));background:#1e613d;color:#fff;border-radius:14px;box-shadow:0 14px 36px #102b2044;padding:17px 22px;font-size:13px;font-weight:800;z-index:400;animation:popIn .2s ease both}
+.save-toast.error{background:#9c2736}@keyframes popIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:990px){.tag-workspace{grid-template-columns:minmax(0,1fr)}.facebook-pane{border-right:0;border-bottom:1px solid #e5ebf3}.facebook-frame{min-height:430px}.fb-post-frame{height:480px}.tagging-pane{padding:22px}.sdg-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:560px){.facebook-pane{padding:16px}.tagging-pane{padding:17px}.sdg-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.sdg-tile{min-height:99px;padding:9px 8px}.tile-label{font-size:10px}.core-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.core-tile{min-height:53px}.preview-foot{flex-direction:column}.preview-foot span{max-width:100%}.save-toast{bottom:12px;right:12px}.desk-status{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.sdg-tile,.save-toast{animation:none;transition:none}}

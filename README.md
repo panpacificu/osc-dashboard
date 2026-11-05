@@ -1,3 +1,29 @@
+# OSC Dashboard v1.6.2 — Facebook Preview & Interactive SDG Tagging
+
+Complete root frontend and Dashboard Apps Script source. This release builds on v1.6.1 without removing the original Dashboard, MCR Form/Tracker connectivity, CSV importer, SDG Explorer, Statistics, or request-based Facebook Post Desk.
+
+**Intern Tagging Desk:** embedded public Facebook post/video preview; 17 SDG-color tiles with original thematic pictograms; always-visible, required Core Values; editable post title; save success toast.
+
+**Sheet writes:** title C, SDGs E–I, Core Values J–M in `Post Monitoring Log`. Existing URL D is preserved. Every save validates the source URL and refuses to overwrite a post already tagged. Unrelated tabs remain intact.
+
+**Backend deployment IS REQUIRED:** the updated `apps-script/Dashboard.gs` saves titles and requires at least one Core Value. Preserve your live MCR `CONFIG.SPREADSHEET_ID` and any local CONFIG/staff customizations; the source file deliberately contains an MCR Sheet ID placeholder. Keep the **existing** Apps Script deployment URL.
+
+**Frontend deployment:** upload all top-level HTML/CSS/JS files into the repo root. `post-sdg-desk.css` is a NEW dependency. Check the included `config.js` API_URL against your currently working `config.js` before replacing.
+
+**Facebook embed limitation:** only publicly embeddable posts will display. Meta can block previews for private/restricted posts, certain share links, or browser privacy restrictions. The post's original link is available as fallback. No promise of 100% preview availability.
+
+**UN color use:** tiles use SDG-identifying colors and original generic pictograms, not official UN icon artwork.
+
+See `INSTALL-v1.6.2.md` for the safe update order.
+
+---
+
+## v1.6.1 version-label correction (November 5, 2026)
+
+The previous full v1.6.1 ZIP contained stale hardcoded footer labels (v1.5.0 and v1.6.0) on some pages. This updated full ZIP corrects those labels, and `script.js` now reads APP_VERSION/LAST_UPDATED from `config.js` to avoid repeating the problem. **No API URLs, data storage logic, or webhook logic was changed.**
+
+`apps-script/Dashboard.gs` still has the internal code header v1.6.0, intentionally: v1.6.1 is a Meta CSV importer/frontend compatibility fix, not a new Apps Script backend. **Do not redeploy Apps Script merely for this display correction.**
+
 # OSC Dashboard v1.6.1 — Complete First-Install Package
 
 This package can be installed **directly from v1.5.0** (or an older working version). You do NOT have to deploy v1.6.0 first.

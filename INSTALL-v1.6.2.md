@@ -1,6 +1,33 @@
-# OSC Dashboard v1.6.1 — Full First-Install Walkthrough
+# OSC Dashboard v1.6.2 — Installation & Upgrade Walkthrough
 
-**You can skip v1.6.0 completely.** This package contains every file needed to move directly to v1.6.1.
+**You can install this directly from any prior working version.** The complete frontend and Dashboard Apps Script source are provided.
+
+
+## New in v1.6.2: Better Intern SDG Tagging Desk
+
+- Full-size best-effort **Facebook post/video iframe preview** for public posts (a fallback **Open original** link remains for posts Meta will not embed). Facebook controls whether a post is embeddable; no API token is used.
+- 17 **SDG-colored tiles** with original thematic outline icons and goal names. These are not official UN icon assets.
+- **Core Values are always visible**, not hidden in a dropdown, and at least one is required when saving. Existing values on pending rows are preselected.
+- **Post title** is editable in the card; saving writes the title to column C.
+- One **Save changes & next** button saves title, 1–5 SDGs (E–I), and 1–4 Core Values (J–M) together; a green notification confirms success. On failure the card remains open.
+- Neither the Facebook URL in D nor the Summary & Grouping tab is changed by tagging.
+- The **original request-based Post Desk** and monthly CSV importer remain unchanged.
+
+**Important:** Because saving the title is a new server-side capability, you **MUST redeploy Dashboard.gs** as an updated version of your **existing** Apps Script deployment. Uploading GitHub files alone will not save title edits.
+
+### If you already have v1.6.1 running
+
+1. **Back up:** Copy your current working Dashboard.gs, your live config.js, and the monitoring Sheet.
+2. **Apps Script:** Update only the existing Dashboard Apps Script project with `apps-script/Dashboard.gs`. **Before replacing, replace `PASTE_YOUR_SPREADSHEET_ID_HERE` with the actual MCR Sheet ID from your current live script** and verify any other locally customized CONFIG/staff fields. Do not touch Form.gs or Tracker.gs.
+3. **Script Properties:** Keep `OSC_INTERN_LINK_PIN`, `OSC_POST_IMPORT_PIN`, `OSC_CHAT_WEBHOOK_URL` as they are. No new secret is required.
+4. Run `testDashboardConnection()` and `testMonitoringConnection()` in Apps Script. These only read data.
+5. **Deploy → Manage deployments → edit the CURRENT Dashboard deployment → New version → Deploy.** Reuse the existing URL.
+6. **Frontend:** Upload the updated root frontend files to the repository root. At minimum the Tagging Desk needs `post-sdg-desk.html`, `post-sdg-desk.js`, and **new** `post-sdg-desk.css`. Other page footers and `config.js` are updated to 1.6.2 in this complete package. If you copy over `config.js`, first compare its API_URL to your current live version; prefer retaining your currently working URL.
+7. Visit `/post-sdg-desk.html`, sign in with the existing intern PIN, and test one untagged post. Change its title, select SDGs and at least one Core Value, save, and check cells C and E–M in that Sheet row. Existing tagged posts remain locked out of the queue.
+
+No live production Sheet was edited while building this package.
+
+---
 
 ## What this release connects
 

@@ -1,1 +1,7 @@
-See INSTALL-FIRST-v1.6.1.md for a complete first-install guide. You can skip v1.6.0.
+OSC Dashboard v1.6.2 — SAFE UPDATE ORDER
+1. Back up working Dashboard.gs, config.js and Sheet.
+2. Preserve live MCR spreadsheet ID and settings in apps-script/Dashboard.gs; deploy existing Dashboard Web App as New version.
+3. Confirm backend health (getRequests, getFormStatus, testMonitoringConnection).
+4. Upload root frontend files into GitHub; keep verified API_URL in config.js.
+5. Test one untagged post from post-sdg-desk.html, including title, SDG, and Core Value save.
+6. No changes to Request Form or Tracker Apps Script projects.
