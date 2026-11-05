@@ -18,7 +18,7 @@
         <h1>SDG Tagging Desk <span class="sparkle" aria-hidden="true">✦</span></h1>
         <p class="sub">Preview. Rename. Tag. Save. One published post at a time.</p>
       </div>
-      <span class="pill">INTERN VIEW</span>
+      <div class="header-actions"><a class="secondary database-link" href="post-database.html">Search Post Database ↗</a><span class="pill">INTERN VIEW</span></div>
     </header>
     <section class="panel gate" id="gate">
       <div class="gate-icon" aria-hidden="true">✦</div>
@@ -32,21 +32,21 @@
     </section>
     <section id="desk" hidden>
       <div class="desk-header">
-        <div><p class="kicker">PUBLISHED POSTS</p><h2>Tag what's published.</h2><p class="sub">Pick SDGs and Core Values; update the title if needed. Saved posts leave the queue.</p></div>
+        <div><p class="kicker">PUBLISHED POSTS</p><h2>Tag what's published.</h2><p class="sub">Pick SDGs and Core Values; update the title if needed. Saved posts leave the queue. Moved posts stay at the back after refresh.</p></div>
         <div class="desk-status"><span id="pendingCount" class="pill">0 pending</span><button class="secondary" id="refreshBtn" type="button">Refresh</button><div class="desk-tabs"><button id="cardMode" class="active" type="button" aria-pressed="true">Cards</button><button id="tableMode" type="button" aria-pressed="false">Table</button></div></div>
       </div>
       <p class="message desk-feedback" id="status" role="status" aria-live="polite"></p>
       <section id="cardArea">
         <article id="postCard" class="desk-card" tabindex="0" aria-label="Current Facebook post and tagging controls"></article>
-        <div class="desk-actions"><button type="button" class="secondary" id="previousBtn">← Previous</button><button type="button" class="secondary" id="skipBtn">Skip →</button></div>
-        <p class="swipe-hint">Swipe left to skip · Swipe right to save when selections are ready</p>
+        <div class="desk-actions"><button type="button" class="secondary" id="previousBtn">← Previous</button><button type="button" class="secondary" id="skipBtn">Move to end ↪</button></div>
+        <p class="swipe-hint">Swipe left to move to the end (saved in Sheet) · Swipe right to save when ready</p>
       </section>
       <section id="tableArea" class="panel" hidden>
         <div class="field"><label for="search">Find a post</label><input id="search" type="search" placeholder="Search by date or post title"></div>
         <div class="table-scroll"><table><thead><tr><th>Date</th><th>Post title</th><th>Facebook link</th><th></th></tr></thead><tbody id="tableBody"></tbody></table></div>
       </section>
     </section>
-    <footer><span>Office of Strategic Communications · Panpacific University</span><span>SDG Desk v1.6.2</span></footer>
+    <footer><span>Office of Strategic Communications · Panpacific University</span><span>SDG Desk v1.6.3</span></footer>
   </div>
   <div id="saveToast" class="save-toast" role="status" aria-live="polite" hidden></div>
   <script src="config.js"></script><script src="post-sdg-desk.js"></script>

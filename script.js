@@ -7,7 +7,7 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.6.2';
+const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.6.3';
 const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || 'November 5, 2026';
 const CHANGELOG = [
   { version: 'v1.5.0', date: 'November 5, 2026', title: 'SDG Explorer and Intern Post Desk', changes: ['Moved SDG filtering to a dedicated Explorer page.', 'Simplified SDG results to RID, activity title, goals and a link.', 'Rebuilt the intern page with swipe cards and table view.', 'Intern queue shows only Posting requests without saved Facebook URLs.'] },
@@ -1051,7 +1051,7 @@ function renderModalFacebookLinks(request) {
 
   const tracking = String(request['Tracking Number'] || '');
   if (manageLink) {
-    manageLink.href = 'facebook-posts.html?tracking=' + encodeURIComponent(tracking);
+    manageLink.href = 'post-database.html';
   }
 
   container.innerHTML = links.length

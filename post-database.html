@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#263f77">
+  <title>Facebook Post Database · Panpacific University</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="post-database.css" rel="stylesheet">
+</head>
+<body>
+<div class="database-shell">
+  <header class="database-header">
+    <div class="identity"><span class="identity-icon" aria-hidden="true">▤</span><div><small>OFFICE OF STRATEGIC COMMUNICATIONS</small><h1>Facebook Post Database<span class="header-dot">.</span></h1><p>Find published posts, see their SDGs and Core Values, and preview them instantly.</p></div></div>
+    <a class="header-link" href="post-sdg-desk.html">SDG Tagging Desk <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <section id="accessPanel" class="access-panel" aria-label="Database access">
+    <div class="lock-mark" aria-hidden="true">⌕</div>
+    <h2>Search your published posts</h2>
+    <p>Use your existing OSC intern or monthly import code to open the database. This is a read-only workspace.</p>
+    <form id="accessForm"><label for="accessPin">Access code</label><div class="access-fields"><input id="accessPin" type="password" required autocomplete="off" placeholder="Enter code" minlength="1"><button id="unlockBtn" type="submit">Open database →</button></div></form>
+    <p id="accessStatus" class="feedback" role="status" aria-live="polite"></p>
+  </section>
+
+  <main id="databaseApp" hidden>
+    <section class="toolbox" aria-label="Post database filters">
+      <div class="toolbox-top"><div><span class="overline">PUBLISHED POST LIBRARY</span><h2>Find the right post.</h2></div><button id="reloadBtn" class="btn-clear" type="button">↻ Refresh database</button></div>
+      <div class="filter-grid">
+        <label class="search-field"><span>SEARCH POSTS</span><span class="input-icon" aria-hidden="true">⌕</span><input id="postSearch" type="search" placeholder="Search a topic, title, date or Facebook link…" autocomplete="off"></label>
+        <label><span>MONTH</span><select id="monthFilter"><option value="">All months</option></select></label>
+        <label><span>SDG</span><select id="sdgFilter"><option value="">All 17 SDGs</option></select></label>
+        <label><span>CORE VALUE</span><select id="coreFilter"><option value="">All Core Values</option><option>Pioneer</option><option>Compassion</option><option>Service</option><option>Truth</option></select></label>
+      </div>
+      <div class="filter-bottom"><div class="database-metrics"><span id="totalStat" class="count-pill">0 published</span><span id="taggedStat" class="count-pill neutral">0 tagged</span><span id="matchStat" class="count-pill neutral">0 matches</span></div><button id="resetBtn" class="btn-clear" type="button">Clear filters ×</button></div>
+      <p class="feedback" id="databaseStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <div class="database-grid">
+      <section class="results-column" aria-label="Matching Facebook posts">
+        <div class="column-head"><div><span class="overline">RESULTS</span><h2>Published posts</h2></div><span class="tip">Select to preview <span aria-hidden="true">→</span></span></div>
+        <div id="resultList" class="result-list" role="list"></div>
+        <button id="loadMoreBtn" type="button" class="load-more" hidden>Show more posts ↓</button>
+      </section>
+      <aside class="details-column" aria-label="Selected post details">
+        <div id="postDetails" class="details-body"><div class="details-empty">Choose a post to see its preview.</div></div>
+      </aside>
+    </div>
+  </main>
+  <footer class="database-footer"><span>Office of Strategic Communications · Panpacific University</span><span>Facebook Post Database · v1.6.3</span></footer>
+</div>
+<script src="config.js"></script>
+<script src="post-database.js"></script>
+</body>
+</html>

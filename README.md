@@ -1,196 +1,67 @@
-# OSC Dashboard v1.6.2 — Facebook Preview & Interactive SDG Tagging
+# OSC Dashboard v1.6.3 — Persistent Tagging Queue & Facebook Post Database
 
-Complete root frontend and Dashboard Apps Script source. This release builds on v1.6.1 without removing the original Dashboard, MCR Form/Tracker connectivity, CSV importer, SDG Explorer, Statistics, or request-based Facebook Post Desk.
+**November 5, 2026** • Complete Panpacific University OSC Dashboard GitHub Pages repository and the corresponding Dashboard Apps Script backend.
 
-**Intern Tagging Desk:** embedded public Facebook post/video preview; 17 SDG-color tiles with original thematic pictograms; always-visible, required Core Values; editable post title; save success toast.
+## New in v1.6.3
 
-**Sheet writes:** title C, SDGs E–I, Core Values J–M in `Post Monitoring Log`. Existing URL D is preserved. Every save validates the source URL and refuses to overwrite a post already tagged. Unrelated tabs remain intact.
+- **SDG Tagging Desk (`post-sdg-desk.html`)**: replaced temporary Skip with a server-persisted **Move to end ↪** action. It writes an ISO timestamp in `Post Monitoring Log!N` and sorts untagged posts so deferred ones go last. The actual Sheet rows are **not moved, deleted, or archived**; this protects formulas in `SDG Summary & Grouping`. Repeated deferral sends a post to the back again, even after refreshing or reopening the browser.
+- **Automatic queue refresh**: successful SDG/Core Value/title save reloads the pending queue from the actual Google Sheet, advances to the next post, and shows a success notification. Deferral does the same.
+- **Facebook Post Database (`post-database.html`)**: read-only title/date/link search, month/SDG/Core Value filters, full preview and original Facebook link. Displays both tagged and untagged posts; draws directly from the Post Monitoring Log. Open with `OSC_INTERN_LINK_PIN` **or** `OSC_POST_IMPORT_PIN`.
+- **Paused legacy Intern Post Desk**: `facebook-posts.html` is now an informational page, not the link submission workflow. The old Intern Post Desk is removed from management navigation and its old JS/CSS are not shipped. Legacy request-based desk endpoints now return a paused message; their underlying functions remain for future reactivation.
+- Updated version and menu links across the dashboard and statistics/SDG pages.
 
-**Backend deployment IS REQUIRED:** the updated `apps-script/Dashboard.gs` saves titles and requires at least one Core Value. Preserve your live MCR `CONFIG.SPREADSHEET_ID` and any local CONFIG/staff customizations; the source file deliberately contains an MCR Sheet ID placeholder. Keep the **existing** Apps Script deployment URL.
+## Important: one new Sheet header
 
-**Frontend deployment:** upload all top-level HTML/CSS/JS files into the repo root. `post-sdg-desk.css` is a NEW dependency. Check the included `config.js` API_URL against your currently working `config.js` before replacing.
+Upon opening the Tagging Desk after installing the new backend, the app adds this header to **N3** of your existing **Post Monitoring Log** (only if N3 is empty):
 
-**Facebook embed limitation:** only publicly embeddable posts will display. Meta can block previews for private/restricted posts, certain share links, or browser privacy restrictions. The post's original link is available as fallback. No promise of 100% preview availability.
+`Tagging Queue Deferred At`
 
-**UN color use:** tiles use SDG-identifying colors and original generic pictograms, not official UN icon artwork.
+Deferral timestamps are saved in column N. If N3 is occupied by something else, the backend refuses to overwrite it and displays an error. **Columns B–M, the existing SDG/Core Values, and the `SDG Summary & Grouping` tab remain unchanged.**
 
-See `INSTALL-v1.6.2.md` for the safe update order.
+**No manual Sheet edits are required.** Back up the monitoring Sheet before the upgrade.
 
----
+## Files to upload to GitHub Pages
 
-## v1.6.1 version-label correction (November 5, 2026)
+| File | Purpose |
+|---|---|
+| `index.html`, `style.css`, `script.js` | Core MCR Dashboard |
+| `config.js` | Existing live Dashboard API URL and changelog (verify before deploying) |
+| `statistics.html`, `statistics.js`, `workspace.css` | Management statistics |
+| `sdg.html`, `sdg.js`, `explorer.css` | MCR SDG explorer |
+| `import-posts.html`, `import-posts.js`, `post-monitoring.css` | Meta monthly CSV import and shared intern styles |
+| `post-sdg-desk.html`, `post-sdg-desk.js`, `post-sdg-desk.css` | Intern SDG tagging and persistent queue |
+| `post-database.html`, `post-database.js`, `post-database.css` | Searchable FB post library |
+| `facebook-posts.html` | Paused legacy Intern Post Desk notice (overwrites prior active page) |
+| `.nojekyll` | GitHub Pages configuration |
 
-The previous full v1.6.1 ZIP contained stale hardcoded footer labels (v1.5.0 and v1.6.0) on some pages. This updated full ZIP corrects those labels, and `script.js` now reads APP_VERSION/LAST_UPDATED from `config.js` to avoid repeating the problem. **No API URLs, data storage logic, or webhook logic was changed.**
+**Never copy `apps-script/Dashboard.gs` into the GitHub root as frontend code.** Deploy it in the existing standalone Dashboard Apps Script project; the folder is included as a reference and source file.
 
-`apps-script/Dashboard.gs` still has the internal code header v1.6.0, intentionally: v1.6.1 is a Meta CSV importer/frontend compatibility fix, not a new Apps Script backend. **Do not redeploy Apps Script merely for this display correction.**
+The legacy `facebook-posts.js` and `intern.css` are intentionally omitted from this release. You may delete those unused files from GitHub later. Keeping them does not re-enable the paused page.
 
-# OSC Dashboard v1.6.1 — Complete First-Install Package
+## Backend configuration
 
-This package can be installed **directly from v1.5.0** (or an older working version). You do NOT have to deploy v1.6.0 first.
+Before replacing `Dashboard.gs`, carry forward the **working MCR spreadsheet ID**, its exact `SHEET_NAME`, your existing staff/webhook settings, and any local customizations. This sample retains a placeholder for `CONFIG.SPREADSHEET_ID`; **deploying it unchanged would break the core Dashboard**.
 
-## Contents and where they belong
+The Facebook monitoring Sheet is already configured as `1z3iOYk_ODNrrlyZXKCwNk1i14OIFmYHbV2fgsv2-r-I` and tab `Post Monitoring Log`.
 
-- The HTML, CSS, JS, and `.nojekyll` files in this folder are the **GitHub Pages frontend**. Upload them to the repository ROOT (not in an extra nested directory).
-- `config.js` is required. **Check its `API_URL` against your live Dashboard Apps Script deployment**; it is a last-known historical value, not live-verified.
-- `apps-script/Dashboard.gs` is the **Google Apps Script backend**, and must be installed separately in the existing Dashboard Apps Script project.
-- `INSTALL-FIRST-v1.6.1.md` contains a step-by-step walkthrough for a first-time v1.6.1 install.
-- `PRE-FLIGHT-CHECKLIST.txt` is a quick safety checklist.
+Properties in the **Dashboard Apps Script** project:
 
-## Features
+- `OSC_INTERN_LINK_PIN`: existing intern code. Required for the tagging and deferral workflows; also accepted in the Post Database.
+- `OSC_POST_IMPORT_PIN`: existing staff import code. Required for Meta CSV import; also accepted in the Post Database.
+- `OSC_CHAT_WEBHOOK_URL`: preserve if used.
 
-1. Existing Dashboard, request management, archive/restore, form toggle, email/webhooks remain.
-2. Statistics and SDG Explorer remain separate pages.
-3. Existing request-based Facebook Post Desk remains.
-4. **Monthly CSV Import** (`import-posts.html`): Meta `Publish time` → date, `Title` → concise caption summary, `Permalink` → Facebook URL.
-5. **Post SDG Tagging Desk** (`post-sdg-desk.html`): interns tag published posts in the existing monitoring workbook, SDG 1–17, up to 5 goals per post, optional core values.
+**Do not disclose codes, change `config.js`'s `API_URL` without verifying, or create a New deployment.** In Manage deployments, edit the **existing** Dashboard deployment and select **New version**.
 
-## Data destinations
+## Manual checks after installation
 
-- MCR Request database: your existing spreadsheet configured as `CONFIG.SPREADSHEET_ID` in `Dashboard.gs` (this package intentionally has a placeholder for that value).
-- Facebook Post Monitoring workbook: existing sheet ID `1z3iOYk_ODNrrlyZXKCwNk1i14OIFmYHbV2fgsv2-r-I`, tab **Post Monitoring Log**, columns B–M, header row 3.
-- Sheet **SDG Summary & Grouping** remains untouched by imports and tagging.
+1. Run `testDashboardConnection` and `testMonitoringConnection` in the Dashboard Apps Script editor.
+2. Update the **existing** Dashboard Web App deployment to a new version. Verify `config.js` points to it.
+3. Open `post-sdg-desk.html` and use the existing intern code. Choose an untagged post, press **Move to end**, then browser-refresh: it should remain behind the untouched posts.
+4. Tag one post (title, at least one SDG, at least one Core Value). Save; see the success notification and automatically refreshed queue.
+5. Open `post-database.html` with intern/import code. Search the saved title, verify the post date, SDG(s), Core Value(s), and original Facebook link. If the Facebook embed isn't supported, use **Open original**.
+6. Verify the main Dashboard, Statistics, SDG Explorer and monthly import pages still load.
+7. `facebook-posts.html` should show only a **paused** notice. There should be **no** Intern Post Desk link in management navigation.
 
-## October CSV
+**Security note**: The database and intern endpoints use the existing PIN-based Apps Script JSONP pattern. This is a basic access gate, not true user/role authentication. GitHub Pages page URLs remain public; a future authenticated backend is recommended for sensitive admin actions.
 
-The uploaded October Meta CSV has 75 post records (50 photos and 25 videos); the mapping test found all 75 structurally valid, but **some may already exist in the Google Sheet under different Facebook URL variants**. Preview and compare dates/titles before importing. The source CSV is not bundled with this code ZIP.
-
-## Important limitations
-
-- This uses Google Apps Script GET/JSONP with shared PINs; PINs are sent in URLs and are not full authentication. Restrict distribution and plan authenticated access later.
-- Importer checks duplicate normalized URL strings; it cannot guarantee detection of an older `facebook.com/share/p/...` URL that points to the same post as a newer Meta permalink.
-- Changing GitHub files does not publish the Apps Script code; changing Apps Script code does not upload the GitHub files. Deploy both in order.
-
----
-
-## Existing implementation notes
-
-# OSC Dashboard v1.6.1 — Meta CSV Mapping Fix & SDG Tagging Desk
-
-**Complete GitHub Pages repository + updated Dashboard Apps Script source.**
-
-This release does **not** modify your live Google Sheet by itself. Your Sheet is changed only when you explicitly run the monthly CSV import or an intern saves SDGs after deployment.
-
-## Existing workbook (preserved)
-
-- **Workbook:** [PU FB Page Posts Monitoring Sheet 2026](https://docs.google.com/spreadsheets/d/1z3iOYk_ODNrrlyZXKCwNk1i14OIFmYHbV2fgsv2-r-I/edit)
-- **Data tab:** `Post Monitoring Log`
-- **Header row:** 3
-- **B:** Post Date
-- **C:** Post Topic / Caption Summary
-- **D:** Facebook Post URL
-- **E–I:** Primary SDG through SDG 5 (five SDG slots)
-- **J–M:** Primary Core Value through Core Value 4
-- **Summary tab:** `SDG Summary & Grouping` — left unchanged, including existing formulas.
-
-The MCR request database is still separate. No request data is copied into the Post Monitoring Log automatically; the monthly Meta CSV is the source for published posts.
-
-## New pages
-
-### `import-posts.html` — OSC staff only
-
-1. Select a monthly CSV/TSV export from Meta.
-2. Choose date, caption/title, and published Facebook post URL columns.
-3. Select `MM/DD/YYYY` or `DD/MM/YYYY` interpretation for ambiguous dates.
-4. Preview how records will be imported. Invalid URLs/dates and duplicate URLs within the CSV are excluded.
-5. Enter `OSC_POST_IMPORT_PIN` and confirm **Import new posts**.
-6. Server-side duplicate checking skips any Facebook URLs already in the monitoring log.
-7. New rows receive dates, titles and links in B–D; E–M stay untagged for interns. The existing dropdown validation and row formatting are copied from row 4.
-
-**Validated against the uploaded October 2026 Meta export:** 75 posts, with `Publish time`, `Title`, and `Permalink` as the correct fields. This page supports manual column mapping, but the first real import should be previewed/tested with the sample CSV before a production upload. Only full HTTPS Facebook or fb.watch URLs are accepted. An export with no post URL cannot be imported safely without a matching strategy.
-
-### `post-sdg-desk.html` — Intern SDG Tagging Desk
-
-- Uses your **existing** `OSC_INTERN_LINK_PIN`.
-- Displays only monitoring rows with Facebook URLs **and no SDGs in columns E–I**.
-- Minimal cards with post date/title/URL, plus selectable SDG 1–17 chips.
-- Select one to five goals per post; the existing Sheet has only five SDG columns.
-- Optional Core Values are available in a collapsible section (up to four values).
-- Saving writes to the same Google Sheet, protects already-tagged rows against accidental overwrites and moves to the next post.
-- Supports swipe left to skip / right to save, plus an optional table view to select posts to tag.
-- Intern view has **no Dashboard/Statistics navigation**.
-
-### Existing pages stay intact
-
-`index.html`, `statistics.html`, `sdg.html`, and `facebook-posts.html` from v1.5.0 remain. The old request-based Post Desk is unchanged, so no existing request-link workflow is interrupted.
-
-## Files included
-
-Upload every top-level frontend file to the root of `panpacificu/osc-dashboard`:
-
-```
-index.html
-statistics.html
-sdg.html
-facebook-posts.html
-import-posts.html
-post-sdg-desk.html
-script.js
-statistics.js
-sdg.js
-facebook-posts.js
-import-posts.js
-post-sdg-desk.js
-style.css
-workspace.css
-explorer.css
-intern.css
-post-monitoring.css
-config.js
-.nojekyll
-README.md
-```
-
-`apps-script/Dashboard.gs` is a **source copy for the separate Apps Script editor**, not a GitHub Pages backend executable.
-
-## Safe deployment order
-
-1. **Backup the current production Dashboard.gs** from Apps Script and download a backup copy of your post-monitoring Google Sheet.
-2. Open the existing **Dashboard Apps Script project**, not the Form or Tracker project.
-3. Replace its Dashboard.gs with `apps-script/Dashboard.gs`, preserving your **correct MCR `CONFIG.SPREADSHEET_ID`**, Sheet tab name, staff settings, and any other local customizations. The package contains a placeholder MCR Sheet ID.
-4. In **Project Settings → Script Properties**, keep `OSC_CHAT_WEBHOOK_URL` and existing `OSC_INTERN_LINK_PIN` as they are. Add a separate new property: `OSC_POST_IMPORT_PIN` with a distinct code **not placed in the frontend files**.
-5. Run `testDashboardConnection` and `testMonitoringConnection` manually. Both tests only read Sheets. Run `testInternDeskQueue` if needed; it checks the old request-based desk.
-6. **Deploy → Manage deployments → edit the currently used Dashboard deployment → New version → Deploy.** Do not create a different `/exec` URL.
-7. Verify the `API_URL` in `config.js` against the actual production Dashboard deployment. This package preserves the previous config value, which may be outdated if you changed deployments. Both `?action=getRequests` and `?action=getFormStatus` must work.
-8. Upload all frontend files into the GitHub repository **root**, commit, and hard refresh GitHub Pages.
-9. Test `post-sdg-desk.html` with the intern PIN. It may show no pending posts until you import a fresh CSV.
-10. On a **small test CSV**, use `import-posts.html` to preview, then test actual import and confirm the new rows in the monitoring Sheet. Re-importing the same CSV should add zero duplicates.
-
-## Internal backend actions added
-
-- `getMonitoringTagQueue` — read untagged published posts (existing intern PIN)
-- `saveMonitoringTags` — save up to five SDGs and optional core values (existing intern PIN)
-- `importMonitoringPosts` — batch-import new published posts (separate admin import PIN)
-- `testMonitoringConnection` — read-only configuration/Sheet check in Apps Script editor
-
-Old request update, archiving, form-status, emails, webhook and request-based intern post-link routes remain.
-
-## Practical constraints
-
-- **Validated against October 2026 sample.** Later Meta exports may change format. Do not run a full live import until the mapping has been verified against one real export.
-- The existing monitoring Sheet only has **five SDG columns**. Extend the Sheet schema and summary formulas as a separate project if you need more than five SDGs on a single published post.
-- This uses the current Apps Script JSONP transport and shared PINs. It is basic access gating, **not secure authenticated admin access**. Codes are sent in requests and could be observed. True access restrictions require an authenticated backend and server-side roles.
-- Some Meta CSVs contain engagement insights rather than a list of posts. This importer handles *post rows with published dates, titles/captions, and Facebook URLs*; other exports need an adjusted mapping.
-- No existing monitoring entries, dropdown choices or summary formulas are overwritten by import; SDG saves only target untagged posts.
-- No automatic monthly scheduling, Facebook API sync, or generated PDF reports in this version.
-
-## Update date
-
-November 5, 2026 — release v1.6.0
-
-
-## v1.6.1 — October Meta CSV verification (November 5, 2026)
-
-Sample received: `Oct-01-2026_Oct-31-2026_1843702146652459.csv`.
-
-- 75 records: 50 Photos, 25 Videos; 75 unique nonempty Facebook `Permalink` URLs.
-- The actual publication date comes from `Publish time`, formatted `MM/DD/YYYY HH:MM`.
-- The separate `Date` field is **Lifetime** on every row and must NOT be mapped as Post Date.
-- `Title` contains the full post caption; the importer now extracts its first nonempty line (max ~160 characters) for the concise Post Topic / Caption Summary.
-- Preview first and check dates, titles and links before confirming live import.
-- The existing Sheet sometimes has `facebook.com/share/p/...` URLs while Meta provides `facebook.com/panpacificu/posts/pfbid...`. These may be different URLs for the SAME post; raw URL de-duplication cannot always spot this. Review overlapping dates and titles to prevent unintended duplicates.
-- 75 posts passed format checks; this does **not** mean 75 new records should be inserted. Some may already exist in the monitoring Sheet under different URLs.
-- `import-posts.js` now batches three posts per call, within the backend's limit of three.
-
-**Deployment for this mapping fix:** Replace the GitHub Pages frontend file `import-posts.js` (and the updated `import-posts.html` if desired). The Apps Script code is unchanged from v1.6.0, so **no Apps Script redeployment is needed solely for this Meta mapping fix**. Keep your verified existing `config.js` URL; this complete ZIP includes a copy from v1.6.0 that should be checked before replacing a working configuration.
-
-**No live data was imported or changed during validation.**
+See `INSTALL-v1.6.3.md` for detailed instructions and safety notes.

@@ -1,7 +1,13 @@
-OSC Dashboard v1.6.2 — SAFE UPDATE ORDER
-1. Back up working Dashboard.gs, config.js and Sheet.
-2. Preserve live MCR spreadsheet ID and settings in apps-script/Dashboard.gs; deploy existing Dashboard Web App as New version.
-3. Confirm backend health (getRequests, getFormStatus, testMonitoringConnection).
-4. Upload root frontend files into GitHub; keep verified API_URL in config.js.
-5. Test one untagged post from post-sdg-desk.html, including title, SDG, and Core Value save.
-6. No changes to Request Form or Tracker Apps Script projects.
+OSC Dashboard v1.6.3 — install in this order
+
+1. BACK UP original Dashboard.gs, config.js, and monitoring Google Sheet.
+2. Copy full apps-script/Dashboard.gs into EXISTING Dashboard Apps Script project.
+3. IMPORTANT: restore actual MCR SPREADSHEET_ID and SHEET_NAME; ZIP source has a PLACEHOLDER.
+4. Keep OSC_INTERN_LINK_PIN, OSC_POST_IMPORT_PIN, OSC_CHAT_WEBHOOK_URL in existing Script Properties.
+5. Run testDashboardConnection and testMonitoringConnection.
+6. Deploy > Manage deployments > Edit EXISTING deployment > New version (not New deployment).
+7. Verify config.js API_URL against real deployed Dashboard /exec URL.
+8. Upload ALL frontend files to GitHub root (main); commit. Old facebook-posts.html becomes a paused notice.
+9. Test Move to end, save + automatic queue refresh, and search from post-database.html.
+
+For complete instructions, see INSTALL-v1.6.3.md.

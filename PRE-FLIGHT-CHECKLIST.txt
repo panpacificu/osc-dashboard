@@ -1,11 +1,13 @@
-OSC DASHBOARD v1.6.2 PRE-FLIGHT
-[ ] I backed up my current Dashboard.gs and config.js
-[ ] I backed up my Facebook Monitoring Sheet
-[ ] In Dashboard.gs, CONFIG.SPREADSHEET_ID is my ACTUAL MCR spreadsheet ID, not PASTE_YOUR_SPREADSHEET_ID_HERE
-[ ] MONITORING_CONFIG.SPREADSHEET_ID points to the Facebook monitoring sheet
-[ ] OSC_INTERN_LINK_PIN is saved in the Dashboard Apps Script properties
-[ ] I updated the EXISTING Dashboard Apps Script deployment (new version, same URL)
-[ ] My live config.js API_URL still matches the correct Dashboard /exec endpoint
-[ ] GitHub root has post-sdg-desk.html, .js, and NEW post-sdg-desk.css
-[ ] I checked the post preview, title rename, selected SDGs and Core Values on a test post
-[ ] I confirmed the saved title (C), SDGs (E-I), and Core Values (J-M) in Google Sheets
+[ ] Backed up existing Google Sheet and working Dashboard.gs/config.js
+[ ] Restored actual MCR CONFIG.SPREADSHEET_ID and SHEET_NAME in updated Dashboard.gs
+[ ] Confirmed monitoring spreadsheet ID and existing script PIN properties
+[ ] Ran testDashboardConnection and testMonitoringConnection successfully
+[ ] Updated EXISTING Dashboard Apps Script deployment to a NEW VERSION
+[ ] Kept correct API_URL in GitHub config.js
+[ ] Uploaded all files to GitHub ROOT, not a nested directory
+[ ] Checked v1.6.3 version display
+[ ] Verified N3 header and Move to end persists across refresh
+[ ] Verified tagging save auto-refreshes and retains Core Values and title
+[ ] Verified Facebook Post Database search, filters, embedded preview and original link
+[ ] Verified paused Intern Post Desk no longer appears in nav
+[ ] Checked request Dashboard / Statistics / SDG Explorer / CSV importer

@@ -1,4 +1,4 @@
-/* OSC Published Post SDG Tagging Desk v1.6.2.
+/* OSC Published Post SDG Tagging Desk v1.6.3.
  * Public Facebook embeds are best-effort; title/SDG/core-value changes are saved to the existing monitoring Sheet.
  */
 (()=>{'use strict';
@@ -69,7 +69,7 @@ async function loadQueue(){
  const result=await api('getMonitoringTagQueue');
  if(!result.success)throw new Error(result.message||'Unable to load posts.');
  queue=Array.isArray(result.pending)?result.pending:[];
- index=Math.min(index,Math.max(0,queue.length-1));render();
+ index=0;render();
 }
 function safePostUrl(input){
  try{const u=new URL(input);if(u.protocol!=='https:' || !(/(^|\.)facebook\.com$/.test(u.hostname)||u.hostname==='fb.watch'))return '';return u.href;}
@@ -94,7 +94,7 @@ function cardMarkup(row){
  '<div class="preview-unavailable">This post link cannot be previewed.</div>';
  return `<div class="tag-workspace">
  <section class="facebook-pane" aria-label="Facebook post preview">
-  <div class="pane-top"><span class="kicker">FACEBOOK POST PREVIEW</span><span class="post-count">${index+1} of ${queue.length}</span></div>
+  <div class="pane-top"><span class="kicker">FACEBOOK POST PREVIEW</span><span class="post-count">${index+1} of ${queue.length}${row.deferred?' · Deferred':''}</span></div>
   <div class="facebook-frame">${preview}</div>
   <div class="preview-foot"><span>Public posts can be previewed here. Facebook may restrict some embeds.</span>${url?`<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Open original ↗</a>`:''}</div>
  </section>
@@ -132,12 +132,25 @@ function renderCard(){
 function renderTable(){
  const q=trim($('search').value).toLowerCase();
  const rows=queue.filter(r=>!q||(r.title+' '+r.date).toLowerCase().includes(q));
- $('tableBody').innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.date)}</td><td>${escapeHtml(choicesFor(r).title)}</td><td class="url-cell"><a href="${escapeHtml(safePostUrl(r.url))}" target="_blank" rel="noopener noreferrer">Open post ↗</a></td><td><button type="button" class="table-action" data-row="${r.rowNumber}">Tag →</button></td></tr>`).join('')||'<tr><td class="empty" colspan="4">No pending posts found.</td></tr>';
+ $('tableBody').innerHTML=rows.map(r=>`<tr><td>${escapeHtml(r.date)}</td><td>${escapeHtml(choicesFor(r).title)}${r.deferred?' <span class="deferred-pill">Moved to end</span>':''}</td><td class="url-cell"><a href="${escapeHtml(safePostUrl(r.url))}" target="_blank" rel="noopener noreferrer">Open post ↗</a></td><td><button type="button" class="table-action" data-row="${r.rowNumber}">Tag →</button> <button type="button" class="table-action subtle" data-defer="${r.rowNumber}">Move to end ↪</button></td></tr>`).join('')||'<tr><td class="empty" colspan="4">No pending posts found.</td></tr>';
 }
 function render(){
  $('pendingCount').textContent=queue.length+' pending';renderCard();renderTable();
 }
-function skip(step=1){if(!queue.length||busy)return;index=(index+step+queue.length)%queue.length;renderCard();message('');}
+function previous(){if(!queue.length||busy)return;index=(index-1+queue.length)%queue.length;renderCard();message('');}
+async function moveToEnd(rowOverride){
+ if(busy||!queue.length)return;
+ const row=rowOverride||queue[index];
+ busy=true;message('Moving this post to the end of your queue…');syncControls();
+ try{
+  const result=await api('deferMonitoringPost',{rowNumber:String(row.rowNumber),url:row.url});
+  if(!result.success)throw new Error(result.message||'Could not move this post.');
+  // Reload server ordering so it persists after refreshing the browser.
+  await loadQueue();
+  message('Post moved to the end of the queue.','ok');toast('↪ Moved to end — it will stay there after refresh.');
+ }catch(error){message(error.message,'error');toast('Move failed: '+error.message,'error');}
+ finally{busy=false;syncControls();}
+}
 async function saveCurrent(){
  if(busy||!queue.length)return;
  const row=queue[index],choice=choicesFor(row),title=trim(choice.title);
@@ -148,9 +161,15 @@ async function saveCurrent(){
  try{
   const result=await api('saveMonitoringTags',{rowNumber:String(row.rowNumber),url:row.url,title,sdgs:choice.sdgs.join(','),coreValues:choice.core.join(',')});
   if(!result.success)throw new Error(result.message||'Save failed.');
-  drafts.delete(keyFor(row));queue=queue.filter(x=>x.rowNumber!==row.rowNumber);
-  index=Math.min(index,Math.max(0,queue.length-1));render();
-  message('Saved to the Monitoring Sheet.','ok');
+  drafts.delete(keyFor(row));
+  // Refresh from Google Sheets immediately so saved/deferred state is accurate.
+  try { await loadQueue(); }
+  catch(refreshError){
+    queue=queue.filter(x=>x.rowNumber!==row.rowNumber);index=0;render();
+    message('Saved, but could not refresh the queue: '+refreshError.message,'error');
+    toast('✓ Saved. Refresh the list when your connection returns.');return;
+  }
+  message('Saved and queue refreshed from Google Sheets.','ok');
   toast(`✓ Saved! Title, ${choice.sdgs.length} SDG${choice.sdgs.length===1?'':'s'} and ${choice.core.length} Core Value${choice.core.length===1?'':'s'} recorded.`);
  }catch(error){message(error.message,'error');toast('Could not save: '+error.message,'error');}
  finally{busy=false;syncControls();}
@@ -176,8 +195,8 @@ $('refreshBtn').addEventListener('click',async()=>{
 $('cardMode').addEventListener('click',()=>toggleMode('card'));
 $('tableMode').addEventListener('click',()=>toggleMode('table'));
 $('search').addEventListener('input',renderTable);
-$('previousBtn').addEventListener('click',()=>skip(-1));
-$('skipBtn').addEventListener('click',()=>skip(1));
+$('previousBtn').addEventListener('click',previous);
+$('skipBtn').addEventListener('click',()=>moveToEnd());
 $('postCard').addEventListener('input',e=>{
  if(e.target.id!=='postTitleInput'||!queue[index])return;
  choicesFor(queue[index]).title=e.target.value;syncControls();
@@ -198,7 +217,13 @@ $('postCard').addEventListener('click',event=>{
  }else if(button.dataset.action==='save')saveCurrent();
 });
 $('tableBody').addEventListener('click',event=>{
- const button=event.target.closest('button[data-row]');if(!button)return;
+ const button=event.target.closest('button');if(!button||busy)return;
+ if(button.dataset.defer){
+   const row=queue.find(r=>r.rowNumber===Number(button.dataset.defer));
+   if(row)moveToEnd(row);
+   return;
+ }
+ if(!button.dataset.row)return;
  const found=queue.findIndex(r=>r.rowNumber===Number(button.dataset.row));
  if(found>=0){index=found;toggleMode('card');renderCard();window.scrollTo({top:0,behavior:'smooth'});}
 });
@@ -211,7 +236,7 @@ $('postCard').addEventListener('pointerup',e=>{
  if(!gesture||gesture.id!==e.pointerId)return;
  const dx=e.clientX-gesture.x,dy=e.clientY-gesture.y;gesture=null;
  if(Math.abs(dx)<105||Math.abs(dx)<Math.abs(dy)*1.3)return;
- if(dx<0)skip();else saveCurrent();
+ if(dx<0)moveToEnd();else saveCurrent();
 });
 $('postCard').addEventListener('pointercancel',()=>gesture=null);
 })();
