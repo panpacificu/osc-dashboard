@@ -29,6 +29,12 @@
       </div>
     </header>
 
+    <nav class="osc-primary-nav" aria-label="OSC workspace navigation">
+      <a href="index.html" class="osc-nav-link current" aria-current="page">Requests</a>
+      <a href="statistics.html" class="osc-nav-link">Statistics &amp; SDGs</a>
+      <a href="facebook-posts.html" class="osc-nav-link">Facebook Post Links</a>
+    </nav>
+
     <section class="summary-grid">
       <div class="summary-card">
         <span class="summary-label">Total Requests</span>
@@ -211,15 +217,16 @@
 
     </main>
 
-    <footer class="dashboard-footer">
-      <p>
-        OSC Request Management Dashboard
-        <span id="footerVersion">v1.3.6</span>
-      </p>
-      <p>
-        Last updated:
-        <span id="footerUpdated">—</span>
-      </p>
+    <footer class="dashboard-footer osc-footer">
+      <div class="osc-footer-identity">
+        <strong>Office of Strategic Communications</strong>
+        <span>Panpacific University · Request Management System</span>
+      </div>
+      <div class="osc-footer-meta">
+        <span id="footerVersion">v1.4.0</span>
+        <span class="footer-dot" aria-hidden="true">·</span>
+        <span>Updated <span id="footerUpdated">—</span></span>
+      </div>
     </footer>
   </div>
 
@@ -364,6 +371,17 @@
         </section>
 
         <section class="modal-section">
+          <div class="osc-section-heading">
+            <div>
+              <h3>Facebook Published Posts</h3>
+              <p>Submitted publication URLs associated with this request.</p>
+            </div>
+            <a id="modalPostLogLink" class="osc-inline-link" href="facebook-posts.html">Manage links</a>
+          </div>
+          <div id="modalFacebookPostLinks" class="osc-modal-link-list"><span class="muted">No published post links recorded.</span></div>
+        </section>
+
+        <section class="modal-section">
           <h3>Submitted Request Details</h3>
           <div class="details-grid" id="requestDetailsGrid"></div>
         </section>
@@ -397,17 +415,13 @@
       <span aria-hidden="true">↻</span>
     </button>
 
-    <button
+    <a
       id="adminSummaryToggle"
       class="floating-icon-btn admin-summary-toggle"
-      type="button"
-      aria-label="Open admin statistics"
-      aria-controls="adminSummaryPanel"
-      aria-expanded="false"
-      title="Admin statistics"
-    >
-      <span aria-hidden="true">☰</span>
-    </button>
+      href="statistics.html"
+      aria-label="Open full statistics page"
+      title="Statistics & reports"
+    ><span aria-hidden="true">▥</span></a>
   </div>
 
   <button
@@ -422,105 +436,7 @@
     <span aria-hidden="true">⌛</span>
   </button>
 
-  <div id="adminDrawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
-
-  <aside
-    id="adminSummaryPanel"
-    class="admin-summary-drawer"
-    aria-label="Admin statistics"
-    aria-hidden="true"
-  >
-    <div class="admin-summary-header">
-      <div>
-        <p class="eyebrow">ADMIN STATISTICS</p>
-        <h2>Request Insights</h2>
-        <p>Live summaries based on the currently loaded request records.</p>
-      </div>
-      <button id="adminSummaryClose" class="mini-close-btn" type="button" aria-label="Close admin statistics">×</button>
-    </div>
-
-    <div class="admin-summary-body">
-      <section class="admin-summary-section archive-shortcut-section">
-        <div class="archive-shortcut-card">
-          <div>
-            <h3>Archived Requests</h3>
-            <p>View requests hidden from the main dashboard tables.</p>
-          </div>
-
-          <button id="showArchivedRequestsBtn" class="archive-shortcut-btn" type="button">
-            Show Archived
-          </button>
-        </div>
-      </section>
-
-      <section class="admin-summary-section form-availability-section">
-        <div class="form-availability-heading">
-          <div>
-            <h3>Request Form Availability</h3>
-            <p>Open or temporarily close the public OSC Request Form.</p>
-          </div>
-
-          <span id="formAvailabilityBadge" class="form-availability-badge loading">Checking</span>
-        </div>
-
-        <div class="form-availability-card">
-          <div class="form-toggle-row">
-            <div>
-              <strong id="formAvailabilityTitle">Checking form status…</strong>
-              <span id="formAvailabilityDescription">Please wait while the current setting is loaded.</span>
-            </div>
-
-            <label class="availability-switch" aria-label="Toggle request form availability">
-              <input id="formAvailabilityToggle" type="checkbox" disabled>
-              <span class="availability-slider"></span>
-            </label>
-          </div>
-
-          <label class="form-closed-message-label" for="formClosedMessage">Message shown while closed</label>
-          <textarea
-            id="formClosedMessage"
-            rows="4"
-            placeholder="We are not currently receiving requests as of now. Please check back later."
-            disabled
-          ></textarea>
-
-          <div class="form-availability-actions">
-            <p id="formAvailabilityFeedback" aria-live="polite"></p>
-            <button id="saveFormAvailabilityBtn" class="form-status-save-btn" type="button" disabled>
-              Save Message
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <section class="admin-summary-section">
-        <h3>Overview</h3>
-        <div id="adminOverviewStats" class="mini-stat-grid"></div>
-      </section>
-
-      <section class="admin-summary-section">
-        <h3>Completed by Staff</h3>
-        <div id="adminCompletedByStaff" class="summary-list"></div>
-      </section>
-
-      <section class="admin-summary-section">
-        <h3>Requests by Type</h3>
-        <div id="adminRequestTypeStats" class="summary-list"></div>
-      </section>
-
-      <section class="admin-summary-section">
-        <h3>Top Offices</h3>
-        <div id="adminOfficeStats" class="summary-list"></div>
-      </section>
-
-      <section class="admin-summary-section">
-        <h3>Requested Outputs</h3>
-        <div id="adminOutputStats" class="summary-list"></div>
-      </section>
-    </div>
-  </aside>
-
-  <div id="changelogDrawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
+<div id="changelogDrawerOverlay" class="drawer-overlay" aria-hidden="true"></div>
 
   <aside
     id="changelogPanel"

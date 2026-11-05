@@ -1,94 +1,126 @@
-# OSC Dashboard v1.3.9 — Compact UI + Archive Requests
+# OSC Dashboard v1.4.0 — Statistics, SDGs & Facebook Post Links
 
-This update adds a more compact Dashboard interface and a new Archive / Restore request workflow.
+**Release date:** November 5, 2026  
+**Scope:** Dashboard frontend + Dashboard Apps Script only  
+**Keep:** Existing working `config.js`, Form backend and Tracker backend.
 
-## Included replacement files
+## Package contents
 
-Replace these files in the OSC Dashboard GitHub repository:
+Upload these files to the **OSC Dashboard GitHub repository root**:
 
-- `index.html`
-- `script.js`
-- `style.css`
+- `index.html` — updated dashboard navigation, Facebook links inside request details, updated footer
+- `style.css` — existing compact dashboard styling, green-tinted Student rows, updated footer/navigation
+- `script.js` — request management with deep links and the new modal link list
+- `statistics.html` — independent full-page statistics workspace
+- `statistics.js` — SDG filters, AND-combination queries, summary metrics and request matching
+- `facebook-posts.html` — dedicated link-entry page for interns
+- `facebook-posts.js` — search requests, select a RID, append one or many Facebook post URLs
+- `workspace.css` — styling for the two new pages
 
-Keep your current working `config.js`.
+Separately:
 
-A sample config is included only as:
+- `apps-script/Dashboard.gs` — revised Dashboard backend, version 1.4.0
 
-- `config.sample.js`
+**Your existing `config.js` is intentionally not included. Do not delete or overwrite it.** All three pages read the same existing `OSC_DASHBOARD_CONFIG.API_URL`.
 
-Do not overwrite your existing `config.js` unless you manually copy your current verified Dashboard Apps Script URL into it first.
+## What's new
 
-## Apps Script update required
+### 1) Footer
 
-This feature requires a Dashboard Apps Script backend update because archive status must be saved to the Google Sheet.
+All pages show a consistent Office of Strategic Communications / Panpacific University footer, v1.4.0, and release date.
 
-Replace your Dashboard Apps Script code with:
+### 2) Full Statistics page
 
-- `apps-script/Dashboard.gs`
+- The former Admin Statistics sidebar is replaced by `statistics.html`.
+- Overview: matching requests, open projects, completed, unassigned, requests with Facebook links, total recorded post URLs.
+- Request breakdowns: completed by staff, request type, requesting office, requested outputs.
+- Date-range and request-status filters.
+- Archived requests excluded by default, with an **Include archived** option.
+- Form Availability toggle and closed-form message relocated to **System management**.
+- Archived Requests shortcut opens the existing archived request view in the main Dashboard.
+- Report-ready statistics; formal PDF / Excel report generation is intentionally deferred to a later version.
 
-Before deploying, make sure your current values are preserved:
+### 3) All 17 SDGs, with intersection matching
 
-```javascript
-SPREADSHEET_ID: 'YOUR_CURRENT_SPREADSHEET_ID',
-SHEET_NAME: 'Form Responses'
+Every SDG has a clickable filter tile and a request count. Selecting **SDG 1** shows all requests tagged with SDG 1. Selecting **SDG 1 + SDG 3** shows only requests that contain **both** goals, even if they also include other SDGs (e.g., 1, 3 and 5). Filtering reads the existing `SDG` column; no new SDG database is required.
+
+### 4) Facebook published post-link entry
+
+The new `facebook-posts.html` page lets interns:
+
+1. Search an OSC request by tracking number, title, office or requester.
+2. Select the corresponding request.
+3. See URLs already saved for that request.
+4. Paste one or more Facebook post links, one URL per line.
+5. Enter their OSC link-entry code and save.
+
+Links are appended (not overwritten) and duplicate URLs are skipped. URLs are stored in a new sheet column named **`Facebook Post Links`**, created automatically if it doesn't exist. The existing Dashboard request modal also displays recorded links.
+
+Supported URL hosts: `facebook.com`, its subdomains, and `fb.watch` over HTTPS.
+
+**Limit:** Up to 25 links per save. The frontend submits them one at a time to keep JSONP URLs short; each successfully saved link is stored even if a later link fails. The workflow does **not** create or schedule Facebook posts; it only records links to posts already published.
+
+## Deployment — use this order
+
+### Step 0 — Back up
+
+- Download a copy of the current dashboard GitHub files, especially `config.js`.
+- Copy your current Dashboard Apps Script code and note your **existing working `/exec` URL**.
+- Optional but recommended: back up the Google Sheet.
+
+### Step 1 — Update Dashboard Apps Script (required)
+
+1. Open your **existing OSC Dashboard Apps Script project** — do not use Form or Tracker projects.
+2. Replace `Dashboard.gs` with `apps-script/Dashboard.gs`.
+3. **Before saving, restore your real current** `SPREADSHEET_ID` and correct `SHEET_NAME` (the packaged code contains a placeholder ID). Preserve any previously configured staff settings.
+4. In **Project Settings → Script properties**, keep your existing `OSC_CHAT_WEBHOOK_URL` unchanged, then add:
+
+   - Property: `OSC_POST_LINK_PIN`
+   - Value: a unique code you choose and give only to the staff/interns authorized to log links.
+
+5. Run `testDashboardConnection` manually.
+6. Go to **Deploy → Manage deployments → your active Dashboard Web App → Edit → New version → Deploy**.
+7. Do **not** create a new deployment URL. This update should use your existing verified URL.
+
+Before uploading the frontend, test:
+
+- `YOUR_DASHBOARD_EXEC_URL?action=getRequests` — should return `success: true`.
+- `YOUR_DASHBOARD_EXEC_URL?action=getFormStatus` — should return `success: true`, plus `enabled` and `message`.
+
+The existing opening/closing email and Google Chat webhook functions are retained; verify them with a test request before broad rollout.
+
+### Step 2 — Update GitHub
+
+Upload/replace these eight files in the **Dashboard** repository:
+
+```
+index.html
+style.css
+script.js
+statistics.html
+statistics.js
+facebook-posts.html
+facebook-posts.js
+workspace.css
 ```
 
-Then run:
+**Keep `config.js` unchanged.** Don't upload `apps-script/Dashboard.gs` as a frontend JavaScript file. Then commit, allow GitHub Pages to publish, and hard-refresh with Ctrl + F5.
 
-1. `testDashboardConnection`
-2. `authorizeDashboardPermissions`
+### Step 3 — Acceptance checks
 
-Deploy by updating the existing Dashboard Web App deployment:
+- Open the Dashboard: verify existing requests, archives, modal, green Student rows.
+- Open `statistics.html`: select SDG 1, then SDG 3; verify the result set contains **both** (other goals permitted).
+- Test date and status filters, then Include archived.
+- Open System management: verify form availability still matches its current saved state; do not toggle it unless intended.
+- Open `facebook-posts.html`: select a test RID and save a link you control.
+- Confirm that the `Facebook Post Links` column now holds that URL and the Dashboard modal displays it.
+- Repeat the same URL: it should be recognized as already recorded.
+- Open/complete a **test request** and verify the existing email/webhook notifications. Avoid re-triggering real emails just for testing.
 
-1. Deploy
-2. Manage deployments
-3. Select the current Dashboard deployment
-4. Edit
-5. Version: New version
-6. Deploy
+## Security limitations
 
-Do not create a new Web App URL.
+The current Dashboard API was originally designed as a public `execute as me` JSONP Web App, including sensitive request-management operations. **This release does not introduce true intern accounts, Google Workspace identity checks, or role-based permissions.** `OSC_POST_LINK_PIN` reduces accidental public use of the new link-entry action, but a shared code transmitted through a browser request is not an authentication system. Do not treat the new page as secure for wide public access. For real intern-only permissions, the next phase should use Google Workspace authentication and explicit server-side role checks or a dedicated authenticated service.
 
-## New archive workflow
+## Future report generation
 
-- Open any request.
-- Click `Archive Request`.
-- The request is hidden from Open, All, Completed, and Unassigned views.
-- Open Admin Statistics.
-- Click `Show Archived`.
-- Open an archived request and click `Restore Request`.
-
-The backend automatically creates a new spreadsheet column named:
-
-`Archived`
-
-Archived requests use:
-
-`Archived = Yes`
-
-Restored requests clear the `Archived` value.
-
-## Compact UI changes
-
-- Smaller header typography.
-- Tighter summary cards.
-- Denser tables.
-- Smaller badges and action buttons.
-- More compact modal and admin side drawer.
-
-## Student row highlight
-
-The previous Student row highlight remains active when:
-
-`Requester Type = Student`
-
-## Test checklist
-
-1. Dashboard still loads requests.
-2. Open/assign still sends email and webhook.
-3. Mark completed still sends email and webhook.
-4. Archive a test request.
-5. Confirm it disappears from normal views.
-6. Admin Statistics → Show Archived.
-7. Restore the test request.
-8. Confirm it reappears in normal views.
+The next iteration can add date-scoped PDF/CSV/XLSX exports, per-office and per-staff reports, all-SDG activity reports, trend charts, posts/publishing reconciliation, and scheduled reporting. **These exports are not included in v1.4.0.**

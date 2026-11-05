@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Statistics & SDG Insights · OSC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="workspace.css"></head>
+<body><div class="app-shell workspace-shell">
+<header class="workspace-header"><p class="eyebrow">OFFICE OF STRATEGIC COMMUNICATIONS</p><h1>Statistics & SDG Insights</h1><p>Full-width reporting workspace with live summaries, SDG combinations, and request detail matching.</p></header>
+<nav class="osc-primary-nav" aria-label="OSC workspace navigation">
+<a href="index.html" class="osc-nav-link">Requests</a><a href="statistics.html" class="osc-nav-link current" aria-current="page">Statistics &amp; SDGs</a><a href="facebook-posts.html" class="osc-nav-link">Facebook Post Links</a>
+</nav>
+<main class="workspace-content">
+  <section class="workspace-surface stats-control-card">
+    <div class="section-head"><div><p class="eyebrow">DATA SCOPE</p><h2>Explore your requests</h2><p>Statistics are based on the records loaded from the Dashboard backend.</p></div><button id="statsRefresh" class="workspace-button secondary" type="button">↻ Refresh</button></div>
+    <div class="stats-filters">
+      <div><label for="dateFrom">Submitted from</label><input type="date" id="dateFrom"></div>
+      <div><label for="dateTo">Submitted through</label><input type="date" id="dateTo"></div>
+      <div><label for="statsStatus">Request status</label><select id="statsStatus"><option value="">Any status</option><option>Pending</option><option>Ongoing</option><option>For Review</option><option>Revision</option><option>Completed</option><option>On Hold</option><option>Cancelled</option></select></div>
+      <div class="stats-check-control"><label><input type="checkbox" id="includeArchived"> Include archived</label><span>Archived records are excluded by default</span></div>
+    </div>
+    <p id="statsStatusLine" role="status" class="workspace-feedback">Loading live dashboard records…</p>
+  </section>
+
+  <section class="workspace-surface">
+    <div class="section-head"><div><p class="eyebrow">GOAL ALIGNMENT</p><h2>All 17 Sustainable Development Goals</h2><p>Click one SDG to see matching requests, or select several to require <strong>every selected SDG</strong>. Other SDGs may also be present.</p></div><button type="button" id="clearSdgs" class="workspace-button secondary">Clear SDGs</button></div>
+    <div id="sdgGrid" class="sdg-grid" aria-label="SDG filters"></div>
+    <div class="sdg-selection-info"><span id="sdgSelectionText">No SDGs selected — showing all requests in scope.</span><span id="sdgScopeCount"></span></div>
+  </section>
+
+  <section class="workspace-surface"><div class="section-head"><div><p class="eyebrow">OVERVIEW</p><h2>Request performance</h2></div><span class="section-note">Reflects date, status, archive and SDG filters</span></div><div id="statKpis" class="workspace-kpi-grid"></div></section>
+
+  <section class="workspace-surface"><div class="section-head"><div><p class="eyebrow">MATCHING RECORDS</p><h2>Requests matching selected SDGs</h2><p id="matchExplanation">All requests in the current scope.</p></div><span id="matchingCount" class="workspace-count"></span></div>
+    <div class="stats-table-wrap"><table class="workspace-table"><thead><tr><th>Tracking No.</th><th>Title / Request</th><th>Office</th><th>SDGs</th><th>Status</th><th>Submitted</th><th>Open</th></tr></thead><tbody id="matchingRequestsBody"></tbody></table></div>
+    <div class="table-more"><span id="visibleRequestsNote"></span><button id="showMoreRequests" type="button" class="workspace-button secondary" hidden>Show more requests</button></div>
+  </section>
+
+  <div class="stats-columns"><section class="workspace-surface"><h2>Completed by Staff</h2><div id="staffBreakdown" class="workspace-bars"></div></section>
+  <section class="workspace-surface"><h2>Requests by Type</h2><div id="typeBreakdown" class="workspace-bars"></div></section>
+  <section class="workspace-surface"><h2>Requesting Offices</h2><div id="officeBreakdown" class="workspace-bars"></div></section>
+  <section class="workspace-surface"><h2>Requested Outputs</h2><div id="outputBreakdown" class="workspace-bars"></div></section></div>
+
+  <section class="workspace-surface"><div class="section-head"><div><p class="eyebrow">ADMIN CONTROLS</p><h2>System management</h2><p>The controls from the former statistics sidebar are now here.</p></div></div>
+    <div class="admin-control-grid">
+      <div class="admin-control-card"><h3>Archived Requests</h3><p>View or restore hidden records in the main Dashboard.</p><a href="index.html?view=archived" class="workspace-button primary">View archived requests</a></div>
+      <div class="admin-control-card"><div class="section-head"><h3>Public Form Availability</h3><span id="availabilityState" class="form-availability-badge loading">Checking</span></div><p>Set whether the public Request Form can accept submissions.</p>
+        <label class="workspace-switch"><input type="checkbox" id="statsFormToggle" disabled> Form is accepting requests</label>
+        <label for="statsClosedMessage" class="workspace-label">Message displayed when closed</label>
+        <textarea id="statsClosedMessage" rows="3" placeholder="Closed form message" disabled></textarea>
+        <div class="form-control-footer"><span id="formControlFeedback" role="status"></span><button id="saveStatsFormMessage" type="button" class="workspace-button secondary" disabled>Save message</button></div>
+      </div>
+    </div>
+  </section>
+  <section class="workspace-surface report-roadmap"><p class="eyebrow">NEXT PHASE</p><h2>Report generation — planned</h2><p>This page establishes the live metrics and SDG filters needed for future period-based PDF, spreadsheet and formal management reports. Automated report generation is not enabled in this release.</p></section>
+</main>
+<footer class="dashboard-footer osc-footer"><div class="osc-footer-identity"><strong>Office of Strategic Communications</strong><span>Panpacific University · Request Management System</span></div><div class="osc-footer-meta"><span>v1.4.0</span><span class="footer-dot">·</span><span>November 5, 2026</span></div></footer></div><script src="config.js"></script><script src="statistics.js"></script></body></html>

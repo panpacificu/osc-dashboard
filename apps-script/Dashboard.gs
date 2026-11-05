@@ -2,7 +2,7 @@
  * OSC REQUEST MANAGEMENT DASHBOARD API
  * Backend: Google Apps Script
  * Frontend: GitHub Pages
- * Version: 1.3.7
+ * Version: 1.4.0
  ****************************************************/
 
 const CONFIG = {
@@ -113,6 +113,18 @@ function doGet(e) {
         result = markRequestCompleted_(params.rowNumber);
         break;
 
+      case 'addFacebookPostLinks':
+        result = addFacebookPostLinks_(params);
+        break;
+
+      case 'archiveRequest':
+        result = setRequestArchived_(params.rowNumber, true);
+        break;
+
+      case 'unarchiveRequest':
+        result = setRequestArchived_(params.rowNumber, false);
+        break;
+
       case 'assignRequest':
         result = assignRequest_(params.rowNumber, params.assignedTo);
         break;
@@ -162,6 +174,18 @@ function doPost(e) {
         result = markRequestCompleted_(body.rowNumber);
         break;
 
+      case 'addFacebookPostLinks':
+        result = addFacebookPostLinks_(body);
+        break;
+
+      case 'archiveRequest':
+        result = setRequestArchived_(body.rowNumber, true);
+        break;
+
+      case 'unarchiveRequest':
+        result = setRequestArchived_(body.rowNumber, false);
+        break;
+
       case 'setFormStatus':
         result = setFormStatus_(body.enabled, body.message);
         break;
@@ -193,6 +217,8 @@ function doPost(e) {
 
 function getRequests_() {
   const sheet = getSheet_();
+  ensureArchiveColumn_(sheet);
+  ensureFacebookPostLinksColumn_(sheet);
   const data = sheet.getDataRange().getValues();
 
   if (data.length < 2) {
@@ -220,6 +246,7 @@ function getRequests_() {
     item.isCompleted = isCompletedRequest_(item);
     item.isUnassigned = isUnassignedRequest_(item);
     item.isOverdue = isOverdue_(item);
+    item.isArchived = isArchivedRequest_(item);
 
     return item;
   });
@@ -239,15 +266,17 @@ function getDashboardSummary_() {
   }
 
   const requests = result.requests;
+  const activeRequests = requests.filter(item => !item.isArchived);
 
   return {
     success: true,
     summary: {
-      total: requests.length,
-      open: requests.filter(item => item.isOpen).length,
-      completed: requests.filter(item => item.isCompleted).length,
-      unassigned: requests.filter(item => item.isUnassigned).length,
-      overdue: requests.filter(item => item.isOverdue).length
+      total: activeRequests.length,
+      open: activeRequests.filter(item => item.isOpen).length,
+      completed: activeRequests.filter(item => item.isCompleted).length,
+      unassigned: activeRequests.filter(item => item.isUnassigned).length,
+      overdue: activeRequests.filter(item => item.isOverdue).length,
+      archived: requests.filter(item => item.isArchived).length
     }
   };
 }
@@ -279,6 +308,7 @@ function updateRequest_(payload) {
   }
 
   const sheet = getSheet_();
+  ensureArchiveColumn_(sheet);
   const headers = getHeaders_(sheet);
   const rowNumber = Number(payload.rowNumber);
   const updates = payload.updates || {};
@@ -322,7 +352,8 @@ function updateRequest_(payload) {
     'Notes',
     'Completion Date',
     'Remarks',
-    'Date Needed'
+    'Date Needed',
+    'Archived'
   ];
 
   Object.keys(updates).forEach(fieldName => {
@@ -407,6 +438,7 @@ function markRequestCompleted_(rowNumber) {
   }
 
   const sheet = getSheet_();
+  ensureArchiveColumn_(sheet);
   const headers = getHeaders_(sheet);
   const targetRow = Number(rowNumber);
 
@@ -470,6 +502,38 @@ function markRequestCompleted_(rowNumber) {
   return {
     success: true,
     message: 'Request marked as completed and closing email sent.'
+  };
+}
+
+
+function setRequestArchived_(rowNumber, shouldArchive) {
+  if (!rowNumber) {
+    throw new Error('Missing row number.');
+  }
+
+  const sheet = getSheet_();
+  ensureArchiveColumn_(sheet);
+  const headers = getHeaders_(sheet);
+  const targetRow = Number(rowNumber);
+
+  if (targetRow < 2) {
+    throw new Error('Invalid row number.');
+  }
+
+  setCellByHeader_(
+    sheet,
+    headers,
+    targetRow,
+    'Archived',
+    shouldArchive ? 'Yes' : ''
+  );
+
+  return {
+    success: true,
+    archived: Boolean(shouldArchive),
+    message: shouldArchive
+      ? 'Request archived successfully.'
+      : 'Request restored successfully.'
   };
 }
 
@@ -1250,6 +1314,99 @@ function setFormStatus_(enabledValue, messageValue) {
   };
 }
 
+
+/****************************************************
+ * FACEBOOK POST LINKS — SAFE APPEND ONLY
+ ****************************************************/
+
+function ensureFacebookPostLinksColumn_(sheet) {
+  const headers = getHeaders_(sheet);
+  if (headers.indexOf('Facebook Post Links') !== -1) return;
+  sheet.getRange(1, sheet.getLastColumn() + 1).setValue('Facebook Post Links');
+  SpreadsheetApp.flush();
+}
+
+function addFacebookPostLinks_(payload) {
+  // An entry code protects against accidental public use, but is NOT
+  // a replacement for user authentication or role-based permissions.
+  const expectedCode = String(
+    PropertiesService.getScriptProperties().getProperty('OSC_POST_LINK_PIN') || ''
+  );
+  if (!expectedCode) {
+    throw new Error('Post logging is not configured. Set OSC_POST_LINK_PIN in Script Properties.');
+  }
+  if (String(payload.pin || '') !== expectedCode) {
+    throw new Error('Incorrect post logging access code.');
+  }
+
+  const tracking = String(payload.tracking || '').trim().toUpperCase();
+  if (!/^RID[\w-]+$/i.test(tracking)) {
+    throw new Error('A valid request tracking number is required.');
+  }
+
+  const rawLinks = String(payload.links || '').split(/[\n\r,;]+/)
+    .map(function(x) { return x.trim(); })
+    .filter(Boolean);
+  if (!rawLinks.length || rawLinks.length > 25) {
+    throw new Error('Enter 1–25 Facebook post links.');
+  }
+  const validated = rawLinks.map(function(value) {
+    const match = value.match(/^https:\/\/([^/?#\s]+)(?:[/?#]|$)/i);
+    if (!match || value.length > 2000) {
+      throw new Error('Please provide a valid HTTPS Facebook URL (max 2,000 characters).');
+    }
+    const host = match[1].toLowerCase();
+    if (!(host === 'facebook.com' || host.endsWith('.facebook.com') ||
+          host === 'fb.watch' || host === 'www.fb.watch')) {
+      throw new Error('Only HTTPS Facebook and fb.watch links are accepted.');
+    }
+    return value;
+  });
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) {
+    throw new Error('Another update is in progress. Please try again.');
+  }
+
+  try {
+    const sheet = getSheet_();
+    ensureFacebookPostLinksColumn_(sheet);
+    const headers = getHeaders_(sheet);
+    const trackingCol = headers.indexOf('Tracking Number') + 1;
+    const linkCol = headers.indexOf('Facebook Post Links') + 1;
+    if (!trackingCol) throw new Error('Tracking Number column missing.');
+    const lastRow = sheet.getLastRow();
+    if (lastRow < 2) throw new Error('No requests found.');
+    const ids = sheet.getRange(2, trackingCol, lastRow - 1, 1).getDisplayValues();
+    const index = ids.findIndex(function(row) {
+      return String(row[0] || '').trim().toUpperCase() === tracking;
+    });
+    if (index === -1) throw new Error('Request not found: ' + tracking);
+
+    const cell = sheet.getRange(index + 2, linkCol);
+    const existing = String(cell.getDisplayValue() || '')
+      .split(/[\n\r,;]+/).map(function(x) { return x.trim(); }).filter(Boolean);
+    const unique = existing.slice();
+    let added = 0;
+    validated.forEach(function(url) {
+      if (unique.indexOf(url) === -1) { unique.push(url); added++; }
+    });
+    if (added) {
+      cell.setNumberFormat('@');
+      cell.setValue(unique.join('\n'));
+    }
+    return {
+      success: true,
+      requestID: tracking,
+      added: added,
+      total: unique.length,
+      message: added ? 'Facebook post links saved.' : 'These links were already recorded.'
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 /****************************************************
  * SHEET HELPERS
  ****************************************************/
@@ -1296,6 +1453,23 @@ function getSheet_() {
   }
 
   return sheet;
+}
+
+
+function ensureArchiveColumn_(sheet) {
+  const headers = getHeaders_(sheet);
+
+  if (headers.indexOf('Archived') !== -1) {
+    return;
+  }
+
+  const nextColumn = sheet.getLastColumn() + 1;
+
+  sheet
+    .getRange(1, nextColumn)
+    .setValue('Archived');
+
+  SpreadsheetApp.flush();
 }
 
 function getHeaders_(sheet) {
@@ -1381,6 +1555,18 @@ function getRequestTitle_(item) {
     item['Activity Proposal Title'] ||
     item['Request'] ||
     'Untitled Request'
+  );
+}
+
+
+function isArchivedRequest_(item) {
+  const archived = normalize_(item['Archived']);
+
+  return (
+    archived === 'yes' ||
+    archived === 'true' ||
+    archived === 'archived' ||
+    archived === 'hidden'
   );
 }
 

@@ -7,11 +7,22 @@
 const DASHBOARD_CONFIG = window.OSC_DASHBOARD_CONFIG || {};
 
 const API_URL = DASHBOARD_CONFIG.API_URL || '';
-const APP_VERSION = DASHBOARD_CONFIG.APP_VERSION || 'v1.3.9';
-const LAST_UPDATED = DASHBOARD_CONFIG.LAST_UPDATED || '';
-const CHANGELOG = Array.isArray(DASHBOARD_CONFIG.CHANGELOG)
-  ? DASHBOARD_CONFIG.CHANGELOG
-  : [];
+const APP_VERSION = 'v1.4.0';
+const LAST_UPDATED = 'November 5, 2026';
+const CHANGELOG = [
+  {
+    version: 'v1.4.0',
+    date: 'November 5, 2026',
+    title: 'Statistics Page and Facebook Post Link Log',
+    changes: [
+      'Replaced the statistics sidebar with a dedicated statistics and SDG report workspace.',
+      'Added filtering for all 17 SDGs using all-selected-goals matching.',
+      'Added a separate page for recording Facebook post links by tracking number.',
+      'Updated the footer and kept the working archive and request workflows.'
+    ]
+  },
+  ...(Array.isArray(DASHBOARD_CONFIG.CHANGELOG) ? DASHBOARD_CONFIG.CHANGELOG : [])
+];
 
 let allRequests = [];
 let currentView = 'open';
@@ -21,6 +32,7 @@ let searchDebounceTimer = null;
 let changelogRendered = false;
 let formStatusLoaded = false;
 let formStatusSaving = false;
+let deepLinkApplied = false;
 
 let currentSort = {
   field: 'Date Needed',
@@ -66,7 +78,8 @@ const DETAIL_FIELDS = [
   'Project Link',
   'Notes',
   'Completion Date',
-  'Archived'
+  'Archived',
+  'Facebook Post Links'
 ];
 
 const EDITABLE_FIELDS = {
@@ -114,14 +127,6 @@ function bindEvents() {
 
   document.getElementById('floatingRefreshBtn').addEventListener('click', refreshDashboard);
 
-  document.getElementById('adminSummaryToggle').addEventListener('click', toggleAdminSummary);
-  document.getElementById('adminSummaryClose').addEventListener('click', closeAdminSummary);
-  document.getElementById('adminDrawerOverlay').addEventListener('click', closeAdminSummary);
-
-  document.getElementById('showArchivedRequestsBtn').addEventListener('click', showArchivedRequests);
-  document.getElementById('formAvailabilityToggle').addEventListener('change', handleFormAvailabilityToggle);
-  document.getElementById('saveFormAvailabilityBtn').addEventListener('click', () => saveFormAvailability(false));
-
   document.getElementById('changelogToggle').addEventListener('click', toggleChangelog);
   document.getElementById('changelogClose').addEventListener('click', closeChangelog);
   document.getElementById('changelogDrawerOverlay').addEventListener('click', closeChangelog);
@@ -129,7 +134,6 @@ function bindEvents() {
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeModal();
-      closeAdminSummary();
       closeChangelog();
     }
   });
@@ -148,6 +152,7 @@ function refreshDashboard() {
       }
 
       allRequests = normalizeLoadedRequests(response.requests || []);
+      applyDashboardDeepLinkOnce();
 
       adminSummaryDirty = true;
       updateSummaryCards();
@@ -519,6 +524,7 @@ function openRequestModal(rowNumber) {
 
   populateEditFields(selectedRequest);
   populateDetailsGrid(selectedRequest);
+  renderModalFacebookLinks(selectedRequest);
   updateArchiveActionButton(selectedRequest);
   clearModalMessage();
 
@@ -626,6 +632,7 @@ function handleSaveChanges() {
       if (selectedRequest) {
         populateEditFields(selectedRequest);
         populateDetailsGrid(selectedRequest);
+        renderModalFacebookLinks(selectedRequest);
         updateArchiveActionButton(selectedRequest);
       }
 
@@ -700,6 +707,7 @@ function handleMarkCompleted() {
       if (selectedRequest) {
         populateEditFields(selectedRequest);
         populateDetailsGrid(selectedRequest);
+        renderModalFacebookLinks(selectedRequest);
         updateArchiveActionButton(selectedRequest);
       }
 
@@ -778,294 +786,6 @@ function handleArchiveToggle() {
 
 
 /****************************************************
- * REQUEST FORM AVAILABILITY
- ****************************************************/
-
-function loadFormAvailability() {
-  setFormAvailabilityLoading(true);
-  setFormAvailabilityFeedback('Loading current form status…', '');
-
-  callApi('getFormStatus')
-    .then((response) => {
-      if (!response.success) {
-        throw new Error(response.message || 'Unable to load form status.');
-      }
-
-      applyFormAvailabilityState(response);
-      formStatusLoaded = true;
-      setFormAvailabilityFeedback('', '');
-    })
-    .catch((error) => {
-      console.error(error);
-      setFormAvailabilityFeedback(error.message || 'Unable to load form status.', 'error');
-    })
-    .finally(() => {
-      setFormAvailabilityLoading(false);
-    });
-}
-
-function handleFormAvailabilityToggle() {
-  if (formStatusSaving) return;
-  saveFormAvailability(true);
-}
-
-function saveFormAvailability(isToggleChange) {
-  const toggle = document.getElementById('formAvailabilityToggle');
-  const messageField = document.getElementById('formClosedMessage');
-  const saveButton = document.getElementById('saveFormAvailabilityBtn');
-
-  const enabled = toggle.checked;
-  const message = messageField.value.trim();
-
-  formStatusSaving = true;
-  toggle.disabled = true;
-  messageField.disabled = true;
-  saveButton.disabled = true;
-  setFormAvailabilityFeedback(
-    enabled ? 'Opening the request form…' : 'Closing the request form…',
-    ''
-  );
-
-  callApi('setFormStatus', {
-    enabled: String(enabled),
-    message
-  })
-    .then((response) => {
-      if (!response.success) {
-        throw new Error(response.message || 'Unable to save form status.');
-      }
-
-      applyFormAvailabilityState(response);
-      formStatusLoaded = true;
-      showToast(
-        response.enabled
-          ? 'The OSC Request Form is now open.'
-          : 'The OSC Request Form is now closed.',
-        'success'
-      );
-      setFormAvailabilityFeedback(
-        isToggleChange
-          ? 'Availability updated successfully.'
-          : 'Closed-form message saved successfully.',
-        'success'
-      );
-    })
-    .catch((error) => {
-      console.error(error);
-      toggle.checked = !enabled;
-      setFormAvailabilityFeedback(error.message || 'Unable to save form status.', 'error');
-      showToast(error.message || 'Unable to save form status.', 'error');
-    })
-    .finally(() => {
-      formStatusSaving = false;
-      toggle.disabled = false;
-      messageField.disabled = false;
-      saveButton.disabled = false;
-    });
-}
-
-function applyFormAvailabilityState(status) {
-  const enabled = Boolean(status.enabled);
-  const toggle = document.getElementById('formAvailabilityToggle');
-  const badge = document.getElementById('formAvailabilityBadge');
-  const title = document.getElementById('formAvailabilityTitle');
-  const description = document.getElementById('formAvailabilityDescription');
-  const messageField = document.getElementById('formClosedMessage');
-
-  toggle.checked = enabled;
-  messageField.value = status.message || '';
-
-  badge.textContent = enabled ? 'Open' : 'Closed';
-  badge.className = `form-availability-badge ${enabled ? 'open' : 'closed'}`;
-
-  title.textContent = enabled
-    ? 'The request form is accepting submissions.'
-    : 'The request form is temporarily closed.';
-
-  description.textContent = enabled
-    ? 'Users can open and submit the public OSC Request Form.'
-    : 'Visitors will see the closed notice instead of the request fields.';
-}
-
-function setFormAvailabilityLoading(isLoading) {
-  const toggle = document.getElementById('formAvailabilityToggle');
-  const messageField = document.getElementById('formClosedMessage');
-  const saveButton = document.getElementById('saveFormAvailabilityBtn');
-  const badge = document.getElementById('formAvailabilityBadge');
-
-  if (isLoading) {
-    toggle.disabled = true;
-    messageField.disabled = true;
-    saveButton.disabled = true;
-    badge.textContent = 'Checking';
-    badge.className = 'form-availability-badge loading';
-    return;
-  }
-
-  if (!formStatusSaving) {
-    toggle.disabled = false;
-    messageField.disabled = false;
-    saveButton.disabled = false;
-  }
-}
-
-function setFormAvailabilityFeedback(message, type) {
-  const feedback = document.getElementById('formAvailabilityFeedback');
-  feedback.textContent = message;
-  feedback.className = type || '';
-}
-
-/****************************************************
- * ADMIN SUMMARY
- ****************************************************/
-
-
-function showArchivedRequests() {
-  closeAdminSummary();
-  switchView('archived');
-}
-
-function toggleAdminSummary() {
-  const panel = document.getElementById('adminSummaryPanel');
-
-  if (panel.classList.contains('open')) {
-    closeAdminSummary();
-  } else {
-    openAdminSummary();
-  }
-}
-
-function openAdminSummary() {
-  closeChangelog();
-
-  const panel = document.getElementById('adminSummaryPanel');
-  const overlay = document.getElementById('adminDrawerOverlay');
-  const toggle = document.getElementById('adminSummaryToggle');
-
-  if (adminSummaryDirty) {
-    renderAdminSummary();
-  }
-
-  if (!formStatusLoaded) {
-    loadFormAvailability();
-  }
-
-  panel.classList.add('open');
-  overlay.classList.add('visible');
-  panel.setAttribute('aria-hidden', 'false');
-  overlay.setAttribute('aria-hidden', 'false');
-  toggle.setAttribute('aria-expanded', 'true');
-  document.body.classList.add('drawer-open');
-}
-
-function closeAdminSummary() {
-  const panel = document.getElementById('adminSummaryPanel');
-  const overlay = document.getElementById('adminDrawerOverlay');
-  const toggle = document.getElementById('adminSummaryToggle');
-
-  panel.classList.remove('open');
-  overlay.classList.remove('visible');
-  panel.setAttribute('aria-hidden', 'true');
-  overlay.setAttribute('aria-hidden', 'true');
-  toggle.setAttribute('aria-expanded', 'false');
-  if (!document.getElementById('changelogPanel').classList.contains('open')) {
-    document.body.classList.remove('drawer-open');
-  }
-}
-
-function renderAdminSummary() {
-  const activeRequests = allRequests.filter((item) => !item.isArchived);
-
-  renderOverviewStats();
-  renderTopList('adminCompletedByStaff', countByField(activeRequests.filter((item) => item.isCompleted), 'Assigned'), 8);
-  renderTopList('adminRequestTypeStats', countByField(activeRequests, 'Request Type'), 8);
-  renderTopList('adminOfficeStats', countByField(activeRequests, 'Office'), 8);
-  renderTopList('adminOutputStats', countRequestedOutputs(activeRequests), 10);
-  adminSummaryDirty = false;
-}
-
-function renderOverviewStats() {
-  const activeRequests = allRequests.filter((item) => !item.isArchived);
-
-  const stats = [
-    { label: 'Total', value: activeRequests.length },
-    { label: 'Open', value: activeRequests.filter((item) => item.isOpen).length },
-    { label: 'Completed', value: activeRequests.filter((item) => item.isCompleted).length },
-    { label: 'Unassigned', value: activeRequests.filter((item) => item.isUnassigned).length },
-    { label: 'Overdue', value: activeRequests.filter((item) => item.isOverdue).length },
-    { label: 'Archived', value: allRequests.filter((item) => item.isArchived).length }
-  ];
-
-  document.getElementById('adminOverviewStats').innerHTML = stats.map((stat) => `
-    <div class="mini-stat-card">
-      <strong>${escapeHtml(stat.value)}</strong>
-      <span>${escapeHtml(stat.label)}</span>
-    </div>
-  `).join('');
-}
-
-function countByField(requests, fieldName) {
-  const counts = {};
-
-  requests.forEach((request) => {
-    const value = valueOrDefault(request[fieldName], 'Unspecified');
-    counts[value] = (counts[value] || 0) + 1;
-  });
-
-  return counts;
-}
-
-function countRequestedOutputs(requests) {
-  const counts = {};
-
-  requests.forEach((request) => {
-    const raw = request['Request'] || 'Unspecified';
-
-    String(raw)
-      .split(/[,;\n]+/)
-      .map((item) => item.trim())
-      .filter(Boolean)
-      .forEach((item) => {
-        counts[item] = (counts[item] || 0) + 1;
-      });
-  });
-
-  return counts;
-}
-
-function renderTopList(elementId, countObject, limit = 8) {
-  const container = document.getElementById(elementId);
-  if (!container) return;
-
-  const entries = Object.entries(countObject)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, limit);
-
-  if (!entries.length) {
-    container.innerHTML = '<p class="summary-empty">No data yet.</p>';
-    return;
-  }
-
-  const maxValue = Math.max(...entries.map((entry) => entry[1]), 1);
-
-  container.innerHTML = entries.map(([label, value]) => {
-    const width = Math.max((value / maxValue) * 100, 8);
-
-    return `
-      <div class="summary-list-item">
-        <div class="summary-list-row">
-          <span>${escapeHtml(label)}</span>
-          <strong>${escapeHtml(value)}</strong>
-        </div>
-        <div class="summary-bar">
-          <span style="width:${width}%"></span>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-/****************************************************
  * CHANGELOG DRAWER
  ****************************************************/
 
@@ -1080,8 +800,6 @@ function toggleChangelog() {
 }
 
 function openChangelog() {
-  closeAdminSummary();
-
   const panel = document.getElementById('changelogPanel');
   const overlay = document.getElementById('changelogDrawerOverlay');
   const toggle = document.getElementById('changelogToggle');
@@ -1111,9 +829,7 @@ function closeChangelog() {
   overlay.setAttribute('aria-hidden', 'true');
   toggle.setAttribute('aria-expanded', 'false');
 
-  if (!document.getElementById('adminSummaryPanel').classList.contains('open')) {
-    document.body.classList.remove('drawer-open');
-  }
+  document.body.classList.remove('drawer-open');
 }
 
 function renderChangelog() {
@@ -1298,6 +1014,48 @@ function showToast(message, type = '') {
   toastTimeout = setTimeout(() => {
     toast.classList.add('hidden');
   }, 3200);
+}
+
+
+/****************************************************
+ * FULL-PAGE NAVIGATION & PUBLISHED POST LINKS
+ ****************************************************/
+
+function applyDashboardDeepLinkOnce() {
+  if (deepLinkApplied) return;
+  deepLinkApplied = true;
+  const params = new URLSearchParams(window.location.search);
+  const view = params.get('view');
+  const tracking = params.get('tracking');
+
+  if (tracking) {
+    document.getElementById('searchInput').value = tracking;
+    const matchedRequest = allRequests.find((request) =>
+      String(request['Tracking Number'] || '').toLowerCase() === tracking.toLowerCase()
+    );
+    switchView(matchedRequest && matchedRequest.isArchived ? 'archived' : 'all');
+  } else if (view === 'archived') {
+    switchView('archived');
+  }
+}
+
+function renderModalFacebookLinks(request) {
+  const container = document.getElementById('modalFacebookPostLinks');
+  const manageLink = document.getElementById('modalPostLogLink');
+  if (!container || !request) return;
+  const links = String(request['Facebook Post Links'] || '')
+    .split(/[\n\r,;]+/)
+    .map((value) => value.trim())
+    .filter((value) => /^https:\/\//i.test(value));
+
+  const tracking = String(request['Tracking Number'] || '');
+  if (manageLink) {
+    manageLink.href = 'facebook-posts.html?tracking=' + encodeURIComponent(tracking);
+  }
+
+  container.innerHTML = links.length
+    ? links.map((url, index) => `<a href="${escapeAttribute(url)}" target="_blank" rel="noopener noreferrer" class="osc-post-link">Post ${index + 1} ↗</a>`).join('')
+    : '<span class="muted">No published post links recorded.</span>';
 }
 
 function updateFooterInfo() {
