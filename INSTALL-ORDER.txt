@@ -1,0 +1,15 @@
+OSC DASHBOARD v1.5.0 — SAFE INSTALL ORDER
+
+1) Back up the existing Dashboard Apps Script source.
+2) Replace code in the EXISTING Dashboard Apps Script project with apps-script/Dashboard.gs.
+   Important: preserve the real Spreadsheet ID and Sheet name.
+3) Script Properties: add OSC_INTERN_LINK_PIN. Keep OSC_CHAT_WEBHOOK_URL.
+4) Run testDashboardConnection + testInternDeskQueue (read-only).
+5) Update the EXISTING Dashboard Web App deployment to a New version.
+6) Compare config.js API_URL with the exact production Dashboard /exec URL.
+   The packaged URL comes from GitHub history and MUST be confirmed.
+7) Upload ALL frontend files in this ZIP to the GitHub repository root.
+8) Test Dashboard, Statistics, SDG Explorer and Intern Post Desk.
+
+The intern page has no admin navigation, but GitHub Pages cannot enforce admin permissions.
+See README.md for the full limitation and test checklist.

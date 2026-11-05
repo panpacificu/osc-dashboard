@@ -1,29 +1,25 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Facebook Post Link Log · OSC</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Post Desk · OSC Intern Workspace</title>
+<meta name="referrer" content="no-referrer">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"><link rel="stylesheet" href="workspace.css"></head>
-<body><div class="app-shell workspace-shell">
-<header class="workspace-header"><p class="eyebrow">OFFICE OF STRATEGIC COMMUNICATIONS</p><h1>Facebook Post Link Log</h1><p>A focused workspace for interns to register published Facebook post links against existing OSC request IDs.</p></header>
-<nav class="osc-primary-nav" aria-label="OSC workspace navigation">
-<a href="index.html" class="osc-nav-link">Requests</a><a href="statistics.html" class="osc-nav-link">Statistics &amp; SDGs</a><a href="facebook-posts.html" class="osc-nav-link current" aria-current="page">Facebook Post Links</a>
-</nav>
-<main class="workspace-content">
-<section class="workspace-surface"><div class="section-head"><div><p class="eyebrow">PUBLISHED CONTENT</p><h2>Find a request</h2><p>Search by RID, request title, office or requester. Choose the corresponding request to avoid mismatched links.</p></div><button id="reloadPosts" class="workspace-button secondary">↻ Refresh</button></div>
-  <label for="postRequestSearch" class="workspace-label">Search requests</label><input id="postRequestSearch" type="search" class="workspace-search" placeholder="e.g., RID0234, event, office, requester">
-  <p id="postSearchStatus" role="status" class="workspace-feedback">Loading request records…</p>
-  <div id="postRequestResults" class="post-results"></div>
+<link rel="stylesheet" href="intern.css"></head>
+<body><div class="intern-shell">
+<header class="intern-header"><div class="brand-mark" aria-hidden="true">OSC</div><div><span class="intern-kicker">PANPACIFIC UNIVERSITY</span><h1>Post Desk<span class="intern-dot">.</span></h1></div><span class="intern-only-tag">INTERN WORKSPACE</span></header>
+<main>
+<section id="internGate" class="intern-gate"><div class="gate-logo" aria-hidden="true">↗</div><h2>Ready to log posts?</h2><p>Enter the intern access code to view Facebook posting tasks.</p>
+<form id="internLogin"><label for="internPin">Access code</label><div class="gate-entry"><input id="internPin" type="password" required autocomplete="off" placeholder="Your OSC code"><button type="submit" id="internUnlock">Continue →</button></div></form>
+<p id="internGateStatus" role="status" class="intern-feedback"></p>
 </section>
-<section class="workspace-surface"><div class="section-head"><div><p class="eyebrow">SELECTED REQUEST</p><h2 id="selectedPostTitle">No request selected</h2><p id="selectedPostDescription">Choose a request above to manage its published post links.</p></div><a id="openSelectedDashboard" href="index.html" class="workspace-button secondary" hidden>View request</a></div>
-  <div class="post-links-section"><h3>Already recorded</h3><div id="existingPostLinks" class="existing-post-links"><p class="workspace-empty">No request selected.</p></div></div>
+<section id="internWorkspace" class="intern-workspace" hidden>
+<div class="desk-topline"><div><span class="intern-overline">PENDING PUBLICATIONS</span><h2>Link what’s live.</h2><p>Only requests marked <strong>Posting</strong> without a saved Facebook URL appear here.</p></div><button type="button" id="internRefresh" class="desk-icon-button" title="Refresh pending tasks" aria-label="Refresh pending tasks">↻</button></div>
+<div class="desk-toolbar"><span class="pending-pill" id="internPendingCount">0 pending</span><div class="view-switch" role="group" aria-label="Display mode"><button type="button" id="cardViewBtn" class="active" aria-pressed="true">Cards</button><button type="button" id="tableViewBtn" aria-pressed="false">Table</button></div></div>
+<p id="internFeedback" class="intern-feedback" role="status"></p>
+<section id="cardView" class="intern-card-view" aria-label="Swipeable posting tasks"><div id="postCard" class="swipe-card" tabindex="0"></div>
+<div class="desk-actions"><button type="button" id="prevTask" class="round-action" aria-label="Previous task">←</button><button type="button" id="skipTask" class="skip-action">Skip for now</button><button type="button" id="nextTask" class="round-action" aria-label="Next task">→</button></div><p class="swipe-hint">Swipe left to skip · Swipe right to save a valid link</p></section>
+<section id="tableView" class="intern-table-view" hidden><div class="table-search"><label for="internSearch">Find a request</label><input type="search" id="internSearch" placeholder="Search ID or activity"></div><div class="table-wrap"><table><thead><tr><th>Request ID</th><th>Activity</th><th>Published Facebook URL</th><th></th></tr></thead><tbody id="internTableBody"></tbody></table></div></section>
 </section>
-<section class="workspace-surface"><div class="section-head"><div><p class="eyebrow">INTERN DATA ENTRY</p><h2>Add published Facebook links</h2><p>Paste one URL per line. Existing links are preserved and duplicates are skipped. Each save is attached to the selected request.</p></div></div>
-  <form id="postLinkForm" class="post-entry-form"><div><label for="postLinksInput" class="workspace-label">Facebook post URLs</label><textarea id="postLinksInput" rows="6" placeholder="https://www.facebook.com/...\nhttps://www.facebook.com/..." required disabled></textarea></div>
-    <div><label for="internPostCode" class="workspace-label">Intern link-entry code</label><input id="internPostCode" type="password" autocomplete="off" placeholder="Code from OSC administrator" required disabled><p class="workspace-help">The code is configured privately in the Dashboard Apps Script project.</p></div>
-    <div class="post-entry-actions"><button id="savePostLinks" type="submit" class="workspace-button primary" disabled>Save post links</button><p id="saveLinksFeedback" role="status" class="workspace-feedback"></p></div>
-  </form>
-</section>
-<section class="workspace-surface note-surface"><h2>Important</h2><p>Use the official published post URL, not the Drive or Canva design link. Only HTTPS links from Facebook or fb.watch are accepted. The link-entry code is a lightweight operational safeguard; a future role-authenticated workflow is recommended before opening this page to a wider audience.</p></section>
 </main>
-<footer class="dashboard-footer osc-footer"><div class="osc-footer-identity"><strong>Office of Strategic Communications</strong><span>Panpacific University · Request Management System</span></div><div class="osc-footer-meta"><span>v1.4.0</span><span class="footer-dot">·</span><span>November 5, 2026</span></div></footer></div><script src="config.js"></script><script src="facebook-posts.js"></script></body></html>
+<footer class="intern-footer"><span>Office of Strategic Communications · Panpacific University</span><span>Post Desk v1.5.0</span></footer>
+</div><script src="config.js"></script><script src="facebook-posts.js"></script></body></html>

@@ -6,11 +6,12 @@
 window.OSC_DASHBOARD_CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbx95aSPGw_UHjT6zgXaJ515rG4Su4l4gjAuZl0qkf3keOBop7AmRdTtcphkbjMpVa2iiA/exec',
 
-  APP_VERSION: 'v1.4.0',
+  APP_VERSION: 'v1.5.0',
 
-  LAST_UPDATED: 'November 5, 2026 — Statistics, SDGs & Facebook Post Links',
+  LAST_UPDATED: 'November 5, 2026 — SDG Explorer and Intern Post Desk',
 
   CHANGELOG: [
+    { version: 'v1.5.0', date: 'November 5, 2026', title: 'SDG Explorer and Intern Post Desk', changes: ['Separated SDG filtering from Statistics.', 'Simplified SDG result cards.', 'Added intern-only post queue with swipe and table views.'] },
     {
       version: 'v1.4.0',
       date: 'November 5, 2026',
