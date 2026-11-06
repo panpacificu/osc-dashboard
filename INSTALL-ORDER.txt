@@ -1,13 +1,11 @@
-OSC Dashboard v1.6.3 — install in this order
+OSC Dashboard v1.6.4 — Complete installation
 
-1. BACK UP original Dashboard.gs, config.js, and monitoring Google Sheet.
-2. Copy full apps-script/Dashboard.gs into EXISTING Dashboard Apps Script project.
-3. IMPORTANT: restore actual MCR SPREADSHEET_ID and SHEET_NAME; ZIP source has a PLACEHOLDER.
-4. Keep OSC_INTERN_LINK_PIN, OSC_POST_IMPORT_PIN, OSC_CHAT_WEBHOOK_URL in existing Script Properties.
-5. Run testDashboardConnection and testMonitoringConnection.
-6. Deploy > Manage deployments > Edit EXISTING deployment > New version (not New deployment).
-7. Verify config.js API_URL against real deployed Dashboard /exec URL.
-8. Upload ALL frontend files to GitHub root (main); commit. Old facebook-posts.html becomes a paused notice.
-9. Test Move to end, save + automatic queue refresh, and search from post-database.html.
+1. Back up Dashboard.gs, your verified config.js, and the monitoring Google Sheet.
+2. Replace EXISTING Dashboard Apps Script Dashboard.gs, preserving actual MCR spreadsheet ID and tab.
+3. Run testDashboardConnection and testMonitoringConnection.
+4. Run upgradeMonitoringSummaryForAllSdgs ONCE (adds O3 + updates formulas, backs up summary tab).
+5. Update EXISTING Dashboard Web App deployment → Edit → New version.
+6. Verify current Dashboard API_URL in config.js; upload complete frontend to GitHub root.
+7. Test Select All 17, Save & Next, Post Database filtering and Sheet summary.
 
-For complete instructions, see INSTALL-v1.6.3.md.
+See INSTALL-v1.6.4.md for details.

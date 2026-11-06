@@ -1,4 +1,4 @@
-/* Facebook Post Database v1.6.3 — read-only index of Post Monitoring Log. */
+/* Facebook Post Database v1.6.4 — read-only index of Post Monitoring Log. */
 (()=>{'use strict';
 const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const API=window.OSC_DASHBOARD_CONFIG?.API_URL||'';

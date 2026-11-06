@@ -1,33 +1,28 @@
-# OSC Dashboard v1.6.3.1 — Tagging Desk Button Hotfix
+# OSC Dashboard v1.6.4 — All 17 SDGs + Select All
 
-This is a **frontend-only bug fix** based on the complete v1.6.3 project. The complete package includes all the existing GitHub frontend files, unchanged `apps-script/Dashboard.gs` for reference, plus this fix.
+**Full GitHub repository + Dashboard Apps Script source.** This release builds on v1.6.3.1 and preserves the button-state hotfix, persistent Move to End, Facebook Post Database, monthly Meta CSV Import, SDG Explorer, request Dashboard, Statistics, archives, emails, and existing scripts.
 
-## What was broken
+## What's new
 
-During Save or Move to End, the code set a `busy` flag and rendered the next post with the **Previous** and **Move to End** buttons disabled. When the request finished, it cleared `busy`, but only restored the card’s Save button. The two navigation buttons stayed disabled until a full browser refresh.
+- The SDG Tagging Desk accepts **any 1–17 SDGs**. Use **Select all 17 SDGs** (click again to deselect) or clear the selection. Keep the colored illustrated goal buttons and required Core Values.
+- Existing monitoring Sheet columns are preserved: **E:I** contain the first five selected SDGs; **J:M** contain the four Core Values; **N** remains the persistent queue marker; **O** is the new `Additional SDGs` column for selections 6–17.
+- Saved posts leave the queue; Post Database search and filters include all selected SDGs, including those in column O.
+- One-time Apps Script function `upgradeMonitoringSummaryForAllSdgs` updates the **SDG Summary & Grouping** formulas to count additional SDGs in O and future posts beyond row 69, plus remove the old row 69 limit from Core Value grouping. It makes a hidden copy of the original Summary tab first.
 
-## What changed
+## Installation
 
-`post-sdg-desk.js` now centralizes button enabled/disabled state in `syncControls()`, so all navigation buttons re-enable in the `finally` cleanup after a successful or failed asynchronous operation. This also handles an empty queue correctly.
+**Read `INSTALL-v1.6.4.md` first.** Update the Dashboard Apps Script backend and the existing deployment; the frontend alone cannot save more than five SDGs. Preserve your actual `CONFIG.SPREADSHEET_ID` and `CONFIG.SHEET_NAME` and the existing production `config.js` API_URL.
 
-Updated display version to v1.6.3.1 in `post-sdg-desk.html` and `config.js` (API URL kept unchanged from the v1.6.3 package).
+### Safety / scope
 
-## Installation — easiest way
+- No live Google Sheet, GitHub repository, or Apps Script deployment has been modified by producing this package.
+- Existing tagged posts do not automatically reappear in the pending Tagging Desk. Their existing five goals remain unchanged. If you need to revise older tagged posts, the monitoring Sheet can be edited manually, or a future edit-existing-post workflow can be added.
+- The five original SDG columns and Core Values columns must **not** be moved. Do not add six new SDG columns between I and J.
+- The original summary sheet's `Verified Posts` calculation was already independent of the SDG counting formulas; it is not changed in this release.
+- `config.js` comes from the prior complete ZIP and its API_URL must be verified against your currently deployed Dashboard Web App URL. If your working config is different, **keep the live config.js**.
 
-1. In your GitHub repository `panpacificu/osc-dashboard`, replace **only** root-level `post-sdg-desk.js` from this ZIP (all other existing files can stay).
-2. Commit your change.
-3. Reload `https://panpacificu.github.io/osc-dashboard/post-sdg-desk.html` with **Ctrl+Shift+R**.
-4. Test Move to End → Previous → Move to End again, then Save → Previous → Move to End. None should require a manual refresh.
+## Files
 
-Optional: also upload `post-sdg-desk.html` and `config.js` to show `v1.6.3.1` in page footer/changelog. **Before replacing config.js, verify that its API_URL equals your current working deployment URL. Keep your live config.js if you are unsure.**
+Frontend pages: `index.html`, `statistics.html`, `sdg.html`, `import-posts.html`, `post-sdg-desk.html`, `post-database.html`, and the paused `facebook-posts.html`, with all required JS/CSS/`config.js`/`.nojekyll`.
 
-## Important safety
-
-- This fix is **frontend-only**. **Do NOT redeploy `Dashboard.gs`** or change Script Properties/Sheets.
-- No changes to Form.gs or Tracker.gs.
-- A full repository replacement package is provided for convenience; if your live site has newer local modifications, install the single JS file instead.
-- No live Google Sheets were edited during this patch.
-
-## Technical note
-
-Only `post-sdg-desk.js`, `post-sdg-desk.html`, `config.js`, and this README differ from the v1.6.3 package.
+Backend: `apps-script/Dashboard.gs` (copy into the *Dashboard* Apps Script project, not GitHub-hosted as an API). Do not change `Form.gs` or `Tracker.gs`.

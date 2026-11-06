@@ -1,4 +1,4 @@
-/* OSC Published Post SDG Tagging Desk v1.6.3.1.
+/* OSC Published Post SDG Tagging Desk v1.6.4.
  * Public Facebook embeds are best-effort; title/SDG/core-value changes are saved to the existing monitoring Sheet.
  */
 (()=>{'use strict';
@@ -103,8 +103,9 @@ function cardMarkup(row){
   <label class="edit-label" for="postTitleInput">Post title <span class="small-help">Editable</span></label>
   <input id="postTitleInput" class="post-title-input" type="text" maxlength="300" value="${escapeHtml(choice.title)}" placeholder="Add a useful post title" aria-describedby="titleHelp"/>
   <span id="titleHelp" class="field-help">This title will be saved in the Monitoring Sheet.</span>
-  <div class="section-head"><h3>Choose SDGs</h3><span id="goalCounter" class="selection-count">${choice.sdgs.length}/5 selected</span></div>
-  <div class="sdg-grid" role="group" aria-label="Select 1 to 5 SDGs">${goalMarkup(choice)}</div>
+  <div class="section-head"><h3>Choose SDGs</h3><span id="goalCounter" class="selection-count">${choice.sdgs.length}/17 selected</span></div>
+  <div class="sdg-bulk-controls" role="group" aria-label="SDG quick selections"><button class="bulk-select-btn" type="button" data-action="all-sdgs" aria-pressed="${choice.sdgs.length===17}">✓ Select all 17 SDGs</button><button class="bulk-clear-btn" type="button" data-action="clear-sdgs">Clear selections</button></div>
+  <div class="sdg-grid" role="group" aria-label="Select any number of the 17 SDGs">${goalMarkup(choice)}</div>
   <div class="section-head core-section-head"><h3>Core Values</h3><span id="coreCounter" class="selection-count">${choice.core.length}/4 selected</span></div>
   <div class="core-grid" role="group" aria-label="Select at least one Panpacific University core value">${coreMarkup(choice)}</div>
   <div class="save-section"><p id="selectionHint" class="field-help">Choose at least one SDG and one Core Value.</p>
@@ -123,7 +124,8 @@ function syncControls(){
  el.querySelectorAll('[data-core]').forEach(b=>b.setAttribute('aria-pressed',String(choice.core.includes(b.dataset.core))));
  const valid=choice.sdgs.length>0&&choice.core.length>0&&trim(choice.title).length>0;
  const count=el.querySelector('#goalCounter'),cCount=el.querySelector('#coreCounter'),hint=el.querySelector('#selectionHint'),save=el.querySelector('[data-action="save"]');
- if(count)count.textContent=choice.sdgs.length+'/5 selected';
+ if(count)count.textContent=choice.sdgs.length+'/17 selected';
+ const allBtn=el.querySelector('[data-action="all-sdgs"]');if(allBtn){allBtn.setAttribute('aria-pressed',String(choice.sdgs.length===17));allBtn.textContent=choice.sdgs.length===17?'✓ All 17 selected · Deselect all':'✓ Select all 17 SDGs';}
  if(cCount)cCount.textContent=choice.core.length+'/4 selected';
  if(hint)hint.textContent=!choice.sdgs.length?'Choose at least one SDG.':!choice.core.length?'Choose at least one Core Value.':!trim(choice.title)?'Enter a post title.':'Ready to save your selections.';
  if(save){save.disabled=!valid||busy;save.textContent=busy?'Saving to Sheet…':'Save changes & next →';}
@@ -210,9 +212,12 @@ $('postCard').addEventListener('click',event=>{
  if(button.dataset.goal){
   const n=Number(button.dataset.goal),i=choice.sdgs.indexOf(n);
   if(i>=0)choice.sdgs.splice(i,1);
-  else if(choice.sdgs.length<5)choice.sdgs.push(n);
-  else{message('You can assign up to five SDGs per post in the existing Sheet.','error');return;}
+  else choice.sdgs.push(n);
   choice.sdgs.sort((a,b)=>a-b);syncControls();
+ }else if(button.dataset.action==='all-sdgs'){
+  choice.sdgs=choice.sdgs.length===17?[]:SDGS.map(g=>g[0]);syncControls();
+ }else if(button.dataset.action==='clear-sdgs'){
+  choice.sdgs=[];syncControls();
  }else if(button.dataset.core){
   const v=button.dataset.core,i=choice.core.indexOf(v);
   if(i>=0)choice.core.splice(i,1);else choice.core.push(v);

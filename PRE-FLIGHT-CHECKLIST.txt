@@ -1,13 +1,17 @@
-[ ] Backed up existing Google Sheet and working Dashboard.gs/config.js
-[ ] Restored actual MCR CONFIG.SPREADSHEET_ID and SHEET_NAME in updated Dashboard.gs
-[ ] Confirmed monitoring spreadsheet ID and existing script PIN properties
-[ ] Ran testDashboardConnection and testMonitoringConnection successfully
-[ ] Updated EXISTING Dashboard Apps Script deployment to a NEW VERSION
-[ ] Kept correct API_URL in GitHub config.js
-[ ] Uploaded all files to GitHub ROOT, not a nested directory
-[ ] Checked v1.6.3 version display
-[ ] Verified N3 header and Move to end persists across refresh
-[ ] Verified tagging save auto-refreshes and retains Core Values and title
-[ ] Verified Facebook Post Database search, filters, embedded preview and original link
-[ ] Verified paused Intern Post Desk no longer appears in nav
-[ ] Checked request Dashboard / Statistics / SDG Explorer / CSV importer
+OSC Dashboard v1.6.4 checklist
+[ ] Current working Dashboard.gs and config.js backed up
+[ ] Monitoring Google Sheet copied/backed up
+[ ] Actual MCR CONFIG.SPREADSHEET_ID restored (ZIP contains placeholder)
+[ ] Correct CONFIG.SHEET_NAME preserved
+[ ] Existing intern/import PIN and Google Chat webhook Script Properties preserved
+[ ] testDashboardConnection and testMonitoringConnection both pass
+[ ] upgradeMonitoringSummaryForAllSdgs run, with summary backup and new O3 header
+[ ] Existing Dashboard Web App deployment updated to a New version (same URL)
+[ ] config.js uses verified current Dashboard /exec URL
+[ ] Complete frontend uploaded to GitHub repository root
+[ ] One untagged post tested with >5 SDGs, plus Select All 17 toggle
+[ ] Additional SDGs saved in O, Core Values remain J:M, defer metadata remains N
+[ ] Save auto-refreshes, Previous and Move to End remain clickable
+[ ] Post Database displays and filters goals stored in O
+[ ] SDG Summary & Grouping counts include O plus future imported rows
+[ ] Form/Tracker Apps Script left unchanged
